@@ -1,0 +1,12 @@
+[package]
+name = "prompt"
+version = "0.0.1"
+description="A crate that helps gather input from a user"
+license = "GPL-3"
+edition = "2018"
+publish = ["crates-io"]
+repository = "https://github.com/uglyoldbob/prompt"
+
+
+[dependencies]
+prompt_derive = { version = "0.0.1", path = "../prompt_derive" }
