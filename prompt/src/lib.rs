@@ -7,6 +7,7 @@ pub trait Prompter<T> {
 }
 
 /// The types of errors that can occur when prompting for user input.
+#[derive(Debug)]
 pub enum Error {
     /// Error in standard input
     InputError(std::io::Error),
@@ -26,8 +27,7 @@ pub trait Prompting: Sized {
         T: Prompting + core::str::FromStr,
     {
         loop {
-            let mut v: String = <String as Prompting>::prompt(name)?;
-            v.pop();
+            let v: String = <String as Prompting>::prompt(name)?;
             let v2: Result<T, Error> = v.parse().map_err(|_| Error::ConversionError);
             if v2.is_ok() {
                 return v2;
@@ -48,6 +48,7 @@ impl Prompting for String {
         std::io::stdin()
             .read_line(&mut buffer)
             .map_err(|e| Error::InputError(e))?;
+        buffer.pop();
         Ok(buffer)
     }
 }
@@ -118,7 +119,19 @@ impl Prompting for f64 {
     }
 }
 
-impl<T> Prompting for Option<T>
+impl Prompting for bool {
+    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+        Self::prompt_generic::<Self>(name)
+    }
+}
+
+impl Prompting for std::path::PathBuf {
+    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+        Self::prompt_generic::<Self>(name)
+    }
+}
+
+impl<T> Prompting for Vec<T> 
 where
     T: Prompting + core::str::FromStr,
 {
@@ -127,14 +140,52 @@ where
             let mut v: String = <String as Prompting>::prompt(name)?;
             v.pop();
             if v.is_empty() {
-                return Ok(None);
+                return Ok(Vec::new());
             } else {
-                let v: Result<T, Error> = v.parse().map_err(|_| Error::ConversionError);
-                if let Ok(v) = v {
-                    return Ok(Some(v));
+                let mut vtotal: Vec<T> = Vec::new();
+                let els : Vec<&str> = v.split(',').collect();
+                let mut invalid = false;
+                for el in els.iter() {
+                    let v: Result<T, Error> = el.parse().map_err(|_| Error::ConversionError);
+                    if let Ok(v) = v {
+                        vtotal.push(v);
+                    }
+                    else {
+                        println!("Invalid input");
+                        invalid = true;
+                        break;
+                    }
+                }
+                if !invalid {
+                    return Ok(vtotal);
                 }
             }
-            println!("Invalid input");
+            
+        }
+    }
+}
+
+impl<T> Prompting for Option<T>
+where
+    T: Prompting,
+{
+    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+        if let Some(name) = name {
+            println!("[{} is optional, provide? (true/false)]", name);
+        }
+        let v = bool::prompt(name)?;
+        if v {
+            match T::prompt(name) {
+                Ok(t) => {
+                    return Ok(Some(t));
+                }
+                Err(e) => {
+                    return Err(e);
+                }
+            }
+        }
+        else {
+            Ok(None)
         }
     }
 }

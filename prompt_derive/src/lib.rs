@@ -61,7 +61,5 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
         }
         _ => panic!("Unhandled object type"),
     };
-
-    println!("Token stream is {:?}", expanded.to_string());
     TokenStream::from(expanded)
 }
