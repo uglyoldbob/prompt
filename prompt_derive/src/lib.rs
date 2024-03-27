@@ -10,12 +10,18 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
         syn::Data::Struct(s) => {
             let fields = &s.fields;
             let mut field_stuff: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+
+            let q: proc_macro2::TokenStream = quote::quote! {
+                if let Some(name) = name {
+                    println!("[{}]", name);
+                }
+            };
+            field_stuff.extend(q);
+
             if let syn::Fields::Named(n) = fields {
                 for (i, n) in n.named.iter().enumerate() {
-                    println!("Field {:?}", n.ident);
                     let ftype = &n.ty;
                     if let Some(ident) = &n.ident {
-                        println!("Field2 {}", ident.to_string());
                         let name = Ident::new(&format!("a_{}", i), proc_macro2::Span::call_site());
                         let text = ident.to_string();
                         let q: proc_macro2::TokenStream = quote::quote! {
