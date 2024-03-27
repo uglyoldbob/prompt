@@ -2,6 +2,10 @@
 
 pub use prompt_derive::Prompting;
 
+pub trait Prompter<T> {
+    fn prompt(&mut self) -> Result<T, Error>;
+}
+
 /// The types of errors that can occur when prompting for user input.
 pub enum Error {
     /// Error in standard input
@@ -16,6 +20,21 @@ pub trait Prompting: Sized {
     /// # Arguments
     /// * name - The optional name to display for the type
     fn prompt(name: Option<&str>) -> Result<Self, Error>;
+
+    fn prompt_generic<T>(name: Option<&str>) -> Result<T, Error>
+    where
+        T: Prompting + core::str::FromStr,
+    {
+        loop {
+            let mut v: String = <String as Prompting>::prompt(name)?;
+            v.pop();
+            let v2: Result<T, Error> = v.parse().map_err(|_| Error::ConversionError);
+            if v2.is_ok() {
+                return v2;
+            }
+            println!("Invalid input");
+        }
+    }
 }
 
 impl Prompting for String {
@@ -35,89 +54,67 @@ impl Prompting for String {
 
 impl Prompting for u8 {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        let v: String = <String as Prompting>::prompt(name)?;
-        let v: Self = v.parse().map_err(|_| Error::ConversionError)?;
-        Ok(v)
+        Self::prompt_generic::<Self>(name)
     }
 }
 
 impl Prompting for i8 {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        let v: String = <String as Prompting>::prompt(name)?;
-        let v: Self = v.parse().map_err(|_| Error::ConversionError)?;
-        Ok(v)
+        Self::prompt_generic::<Self>(name)
     }
 }
 
 impl Prompting for u16 {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        let v: String = <String as Prompting>::prompt(name)?;
-        let v: Self = v.parse().map_err(|_| Error::ConversionError)?;
-        Ok(v)
+        Self::prompt_generic::<Self>(name)
     }
 }
 
 impl Prompting for i16 {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        let v: String = <String as Prompting>::prompt(name)?;
-        let v: Self = v.parse().map_err(|_| Error::ConversionError)?;
-        Ok(v)
+        Self::prompt_generic::<Self>(name)
     }
 }
 
 impl Prompting for u32 {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        let v: String = <String as Prompting>::prompt(name)?;
-        let v: Self = v.parse().map_err(|_| Error::ConversionError)?;
-        Ok(v)
+        Self::prompt_generic::<Self>(name)
     }
 }
 
 impl Prompting for i32 {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        let v: String = <String as Prompting>::prompt(name)?;
-        let v: Self = v.parse().map_err(|_| Error::ConversionError)?;
-        Ok(v)
+        Self::prompt_generic::<Self>(name)
     }
 }
 
 impl Prompting for u64 {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        let v: String = <String as Prompting>::prompt(name)?;
-        let v: Self = v.parse().map_err(|_| Error::ConversionError)?;
-        Ok(v)
+        Self::prompt_generic::<Self>(name)
     }
 }
 
 impl Prompting for i64 {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        let v: String = <String as Prompting>::prompt(name)?;
-        let v: Self = v.parse().map_err(|_| Error::ConversionError)?;
-        Ok(v)
+        Self::prompt_generic::<Self>(name)
     }
 }
 
 impl Prompting for usize {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        let v: String = <String as Prompting>::prompt(name)?;
-        let v: Self = v.parse().map_err(|_| Error::ConversionError)?;
-        Ok(v)
+        Self::prompt_generic::<Self>(name)
     }
 }
 
 impl Prompting for f32 {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        let v: String = <String as Prompting>::prompt(name)?;
-        let v: Self = v.parse().map_err(|_| Error::ConversionError)?;
-        Ok(v)
+        Self::prompt_generic::<Self>(name)
     }
 }
 
 impl Prompting for f64 {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        let v: String = <String as Prompting>::prompt(name)?;
-        let v: Self = v.parse().map_err(|_| Error::ConversionError)?;
-        Ok(v)
+        Self::prompt_generic::<Self>(name)
     }
 }
 
@@ -126,12 +123,18 @@ where
     T: Prompting + core::str::FromStr,
 {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        let v: String = <String as Prompting>::prompt(name)?;
-        if v.is_empty() {
-            Ok(None)
-        } else {
-            let v: T = v.parse().map_err(|_| Error::ConversionError)?;
-            Ok(Some(v))
+        loop {
+            let mut v: String = <String as Prompting>::prompt(name)?;
+            v.pop();
+            if v.is_empty() {
+                return Ok(None);
+            } else {
+                let v: Result<T, Error> = v.parse().map_err(|_| Error::ConversionError);
+                if let Ok(v) = v {
+                    return Ok(Some(v));
+                }
+            }
+            println!("Invalid input");
         }
     }
 }
