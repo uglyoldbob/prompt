@@ -6,6 +6,12 @@ pub use prompt_derive::Prompting;
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Password(String);
 
+impl Password {
+    pub fn new(s: String) -> Self {
+        Password(s)
+    }
+}
+
 pub trait Prompter<T> {
     fn prompt(&mut self) -> Result<T, Error>;
 }
