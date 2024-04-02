@@ -24,7 +24,7 @@ pub trait Prompting: Sized {
 
     fn prompt_generic<T>(name: Option<&str>) -> Result<T, Error>
     where
-        T: Prompting + core::str::FromStr,
+        T: Prompting + core::str::FromStr + std::fmt::Debug,
     {
         loop {
             let v: String = <String as Prompting>::prompt(name)?;
@@ -49,6 +49,17 @@ impl Prompting for String {
             .read_line(&mut buffer)
             .map_err(|e| Error::InputError(e))?;
         buffer.pop();
+        loop {
+            if buffer.ends_with('\n') {
+                buffer.pop();
+                continue;
+            }
+            if buffer.ends_with('\r') {
+                buffer.pop();
+                continue;
+            }
+            break;
+        }
         Ok(buffer)
     }
 }
