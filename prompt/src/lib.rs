@@ -183,7 +183,7 @@ impl Prompting for std::path::PathBuf {
     }
 }
 
-impl<T> Prompting for Vec<T> 
+impl<T> Prompting for Vec<T>
 where
     T: Prompting + core::str::FromStr,
 {
@@ -195,14 +195,13 @@ where
                 return Ok(Vec::new());
             } else {
                 let mut vtotal: Vec<T> = Vec::new();
-                let els : Vec<&str> = v.split(',').collect();
+                let els: Vec<&str> = v.split(',').collect();
                 let mut invalid = false;
                 for el in els.iter() {
                     let v: Result<T, Error> = el.parse().map_err(|_| Error::ConversionError);
                     if let Ok(v) = v {
                         vtotal.push(v);
-                    }
-                    else {
+                    } else {
                         println!("Invalid input");
                         invalid = true;
                         break;
@@ -212,7 +211,6 @@ where
                     return Ok(vtotal);
                 }
             }
-            
         }
     }
 }
@@ -235,8 +233,7 @@ where
                     return Err(e);
                 }
             }
-        }
-        else {
+        } else {
             Ok(None)
         }
     }

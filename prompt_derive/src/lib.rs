@@ -9,7 +9,6 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
     let expanded: TokenStream;
     match &input.data {
         syn::Data::Enum(e) => {
-
             let mut field_stuff: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
             let q: proc_macro2::TokenStream = quote::quote! {
                 if let Some(name) = name {
@@ -42,57 +41,120 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
                 let text2 = v.ident.to_string();
                 let q: proc_macro2::TokenStream = match &v.fields {
                     syn::Fields::Named(f) => {
-                        let mut def : proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+                        let mut def: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
                         let mut tokens: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
                         for (i, f) in f.named.iter().enumerate() {
                             if i != 0 {
-                                tokens.extend([
-                                    proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(',', proc_macro2::Spacing::Alone)),
-                                    ]);
+                                tokens.extend([proc_macro2::TokenTree::Punct(
+                                    proc_macro2::Punct::new(',', proc_macro2::Spacing::Alone),
+                                )]);
                             }
-                            tokens.extend([proc_macro2::TokenTree::Ident(f.ident.as_ref().unwrap().clone())]);
-                            tokens.extend([
-                                proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(':', proc_macro2::Spacing::Alone)),
-                                proc_macro2::TokenTree::Literal(proc_macro2::Literal::i16_unsuffixed(42)),
-                                ]);
+                            tokens.extend([proc_macro2::TokenTree::Ident(
+                                f.ident.as_ref().unwrap().clone(),
+                            )]);
+                            let ftype = &f.ty;
+                            let text = f.ident.as_ref().unwrap().to_string();
+                            let val =
+                                quote::quote!(<#ftype as prompt::Prompting>::prompt(Some(#text))?);
+                            tokens.extend([proc_macro2::TokenTree::Punct(
+                                proc_macro2::Punct::new(':', proc_macro2::Spacing::Alone),
+                            )]);
+                            tokens.extend(val);
                         }
                         def.extend(tokens);
 
                         let mut tokens: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
                         tokens.extend([proc_macro2::TokenTree::Ident(sident.clone())]);
                         tokens.extend([
-                            proc_macro2::TokenTree::Punct(
-                                proc_macro2::Punct::new(':', proc_macro2::Spacing::Joint)), 
-                            proc_macro2::TokenTree::Punct(
-                                proc_macro2::Punct::new(':', proc_macro2::Spacing::Alone))
-                            ]);
+                            proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                                ':',
+                                proc_macro2::Spacing::Joint,
+                            )),
+                            proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                                ':',
+                                proc_macro2::Spacing::Alone,
+                            )),
+                        ]);
                         tokens.extend([proc_macro2::TokenTree::Ident(v.ident.clone())]);
-                        tokens.extend([
-                            proc_macro2::TokenTree::Group(proc_macro2::Group::new(proc_macro2::Delimiter::Brace, def))]);
+                        tokens.extend([proc_macro2::TokenTree::Group(proc_macro2::Group::new(
+                            proc_macro2::Delimiter::Brace,
+                            def,
+                        ))]);
                         quote::quote! {
-                            #text2 => { #tokens }
+                            #text2 => { return Ok(#tokens); }
+                            _ => println!("Invalid option"),
                         }
                     }
-                    syn::Fields::Unnamed(_f) => {
-                        let mut field_stuff: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
-                        let q = quote::quote!(todo!("unit"));
-                        field_stuff.extend(q);
+                    syn::Fields::Unnamed(f) => {
+                        let mut def: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+                        let mut tokens: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+                        for (i, f) in f.unnamed.iter().enumerate() {
+                            if i != 0 {
+                                tokens.extend([proc_macro2::TokenTree::Punct(
+                                    proc_macro2::Punct::new(',', proc_macro2::Spacing::Alone),
+                                )]);
+                            }
+                            tokens.extend([proc_macro2::TokenTree::Literal(
+                                proc_macro2::Literal::usize_unsuffixed(i),
+                            )]);
+                            let ftype = &f.ty;
+                            let val = quote::quote!(<#ftype as prompt::Prompting>::prompt(Some(&format!("{}", #i)))?);
+                            tokens.extend([proc_macro2::TokenTree::Punct(
+                                proc_macro2::Punct::new(':', proc_macro2::Spacing::Alone),
+                            )]);
+                            tokens.extend(val);
+                        }
+                        def.extend(tokens);
+
+                        let mut tokens: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+                        tokens.extend([proc_macro2::TokenTree::Ident(sident.clone())]);
+                        tokens.extend([
+                            proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                                ':',
+                                proc_macro2::Spacing::Joint,
+                            )),
+                            proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                                ':',
+                                proc_macro2::Spacing::Alone,
+                            )),
+                        ]);
+                        tokens.extend([proc_macro2::TokenTree::Ident(v.ident.clone())]);
+                        tokens.extend([proc_macro2::TokenTree::Group(proc_macro2::Group::new(
+                            proc_macro2::Delimiter::Brace,
+                            def,
+                        ))]);
                         quote::quote! {
-                            #text2 => { todo!("unnamed") }
+                            #text2 => { return Ok(#tokens); }
                         }
                     }
                     syn::Fields::Unit => {
+                        let mut tokens: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+                        tokens.extend([proc_macro2::TokenTree::Ident(sident.clone())]);
+                        tokens.extend([
+                            proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                                ':',
+                                proc_macro2::Spacing::Joint,
+                            )),
+                            proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                                ':',
+                                proc_macro2::Spacing::Alone,
+                            )),
+                        ]);
+                        tokens.extend([proc_macro2::TokenTree::Ident(v.ident.clone())]);
                         quote::quote! {
-                            #text2 => { todo!("unit") }
+                            #text2 => { return Ok(#tokens); }
                         }
                     }
                 };
                 match_stuff.extend(q);
             }
 
+            let match_else: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+
             let q_start: proc_macro2::TokenStream = quote::quote! {
                 match a.as_str() {
                     #match_stuff
+                    #match_else
                 }
             };
             field_stuff.extend(q_start);
@@ -100,7 +162,9 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
             expanded = quote::quote! {
                 impl prompt::Prompting for #sident {
                     fn prompt(name: Option<&str>) -> Result<Self, prompt::Error> {
-                        #field_stuff
+                        loop {
+                            #field_stuff
+                        }
                     }
                 }
             }
