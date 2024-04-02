@@ -10,3 +10,4 @@ repository = "https://github.com/uglyoldbob/prompt"
 
 [dependencies]
 prompt_derive = { version = "0.0.1", path = "../prompt_derive" }
+rpassword = "7.3.1"

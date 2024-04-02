@@ -2,6 +2,9 @@
 
 pub use prompt_derive::Prompting;
 
+#[derive(Debug)]
+pub struct Password(String);
+
 pub trait Prompter<T> {
     fn prompt(&mut self) -> Result<T, Error>;
 }
@@ -24,7 +27,7 @@ pub trait Prompting: Sized {
 
     fn prompt_generic<T>(name: Option<&str>) -> Result<T, Error>
     where
-        T: Prompting + core::str::FromStr + std::fmt::Debug,
+        T: Prompting + core::str::FromStr,
     {
         loop {
             let v: String = <String as Prompting>::prompt(name)?;
@@ -34,6 +37,18 @@ pub trait Prompting: Sized {
             }
             println!("Invalid input");
         }
+    }
+}
+
+impl Prompting for Password {
+    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+        use std::io::Write;
+        if let Some(n) = name {
+            print!("{}: ", n);
+            std::io::stdout().flush().unwrap();
+        }
+        let buffer = rpassword::read_password().unwrap();
+        Ok(Password(buffer))
     }
 }
 
