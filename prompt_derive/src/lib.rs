@@ -82,7 +82,6 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
                         ))]);
                         quote::quote! {
                             #text2 => { return Ok(#tokens); }
-                            _ => println!("Invalid option"),
                         }
                     }
                     syn::Fields::Unnamed(f) => {
@@ -149,7 +148,8 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
                 match_stuff.extend(q);
             }
 
-            let match_else: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+            let match_else: proc_macro2::TokenStream =
+                quote::quote!(_ => println!("Invalid option"),);
 
             let q_start: proc_macro2::TokenStream = quote::quote! {
                 match a.as_str() {
