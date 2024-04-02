@@ -3,6 +3,7 @@
 pub use prompt_derive::Prompting;
 
 #[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Password(String);
 
 pub trait Prompter<T> {
