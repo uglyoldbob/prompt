@@ -4,6 +4,7 @@ pub use prompt_derive::Prompting;
 
 #[derive(Debug, Clone)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+/// This is a type that allows a user to enter a passowrd without revealing that password onscreen.
 pub struct Password(String);
 
 impl From<Password> for String {
@@ -25,12 +26,83 @@ impl std::ops::Deref for Password {
     }
 }
 
+impl Prompting for Password {
+    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+        use std::io::Write;
+        if let Some(n) = name {
+            print!("{}: ", n);
+            std::io::stdout().flush().unwrap();
+        }
+        let buffer = rpassword::read_password().unwrap();
+        Ok(Password(buffer))
+    }
+}
+
 impl Password {
     pub fn new(s: String) -> Self {
         Password(s)
     }
 }
 
+#[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+/// This is a type that allows a user to create a password, prompting them once for the password, and a second time to verify the password.
+pub struct Password2(String);
+
+impl From<Password2> for String {
+    fn from(value: Password2) -> Self {
+        value.0
+    }
+}
+
+impl std::fmt::Display for Password2 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&self.0)
+    }
+}
+
+impl std::ops::Deref for Password2 {
+    type Target = String;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Prompting for Password2 {
+    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+        use std::io::Write;
+        let mut buffer;
+        loop {
+            if let Some(n) = name {
+                print!("{}:Enter password:", n);
+            } else {
+                print!("Enter password:");
+            }
+            std::io::stdout().flush().unwrap();
+            buffer = rpassword::read_password().unwrap();
+            if let Some(n) = name {
+                print!("{}: Enter password again:", n);
+            } else {
+                print!("Enter password again: ");
+            }
+            std::io::stdout().flush().unwrap();
+            let buf2 = rpassword::read_password().unwrap();
+            if buffer == buf2 {
+                break;
+            }
+            println!("Passwords do not match, try again");
+        }
+        Ok(Password2(buffer))
+    }
+}
+
+impl Password2 {
+    pub fn new(s: String) -> Self {
+        Password2(s)
+    }
+}
+
+/// This trait is for types that can be created with user input
 pub trait Prompter<T> {
     fn prompt(&mut self) -> Result<T, Error>;
 }
@@ -63,18 +135,6 @@ pub trait Prompting: Sized {
             }
             println!("Invalid input");
         }
-    }
-}
-
-impl Prompting for Password {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        use std::io::Write;
-        if let Some(n) = name {
-            print!("{}: ", n);
-            std::io::stdout().flush().unwrap();
-        }
-        let buffer = rpassword::read_password().unwrap();
-        Ok(Password(buffer))
     }
 }
 
