@@ -243,9 +243,35 @@ impl Prompting for std::path::PathBuf {
     }
 }
 
+impl<T> Prompting for std::collections::HashMap<String, T>
+where
+    T: Prompting,
+{
+    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+        use std::io::Write;
+        if let Some(n) = name {
+            print!("{}: ", n);
+            std::io::stdout().flush().unwrap();
+        }
+        let mut hm = std::collections::HashMap::new();
+        loop {
+            print!("Enter key name (blank to end):");
+            std::io::stdout().flush().unwrap();
+            let key = String::prompt(None).unwrap();
+            if key.is_empty() {
+                println!("Done");
+                break;
+            }
+            let t = T::prompt(None).unwrap();
+            hm.insert(key, t);
+        }
+        Ok(hm)
+    }
+}
+
 impl<T> Prompting for Vec<T>
 where
-    T: Prompting + core::str::FromStr,
+    T: core::str::FromStr,
 {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
         loop {
