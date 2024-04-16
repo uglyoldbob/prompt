@@ -26,6 +26,12 @@ impl std::ops::Deref for Password {
     }
 }
 
+impl std::ops::DerefMut for Password {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
+    }
+}
+
 impl Prompting for Password {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
         use std::io::Write;
@@ -65,6 +71,12 @@ impl std::ops::Deref for Password2 {
     type Target = String;
     fn deref(&self) -> &Self::Target {
         &self.0
+    }
+}
+
+impl std::ops::DerefMut for Password2 {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 
