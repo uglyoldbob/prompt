@@ -2,7 +2,7 @@
 
 pub use prompt_derive::Prompting;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 /// This is a type that allows a user to enter a passowrd without revealing that password onscreen.
 pub struct Password(String);
@@ -44,7 +44,7 @@ impl Password {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 /// This is a type that allows a user to create a password, prompting them once for the password, and a second time to verify the password.
 pub struct Password2(String);
