@@ -45,6 +45,7 @@ impl Prompting for Password {
 }
 
 impl Password {
+    /// Construct a new password.
     pub fn new(s: String) -> Self {
         Password(s)
     }
@@ -53,7 +54,7 @@ impl Password {
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 /// This is a type that allows a user to create a password, prompting them once for the password, and a second time to verify the password.
-pub struct Password2(String);
+pub struct Password2(String, String);
 
 impl From<Password2> for String {
     fn from(value: Password2) -> Self {
@@ -104,13 +105,24 @@ impl Prompting for Password2 {
             }
             println!("Passwords do not match, try again");
         }
-        Ok(Password2(buffer))
+        Ok(Password2(buffer.clone(), buffer))
     }
 }
 
 impl Password2 {
+    /// Construct a new password
     pub fn new(s: String) -> Self {
-        Password2(s)
+        Password2(s.clone(), s)
+    }
+
+    /// Get a mutable reference to the second copy of the password
+    pub fn second(&mut self) -> &mut String {
+        &mut self.1
+    }
+
+    /// Return true if the two passwords match
+    pub fn matches(&self) -> bool {
+        self.0 == self.1
     }
 }
 
