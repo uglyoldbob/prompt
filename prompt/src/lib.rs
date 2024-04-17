@@ -173,7 +173,6 @@ impl Prompting for String {
         std::io::stdin()
             .read_line(&mut buffer)
             .map_err(|e| Error::InputError(e))?;
-        buffer.pop();
         loop {
             if buffer.ends_with('\n') {
                 buffer.pop();
@@ -299,8 +298,7 @@ where
 {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
         loop {
-            let mut v: String = <String as Prompting>::prompt(name)?;
-            v.pop();
+            let v: String = <String as Prompting>::prompt(name)?;
             if v.is_empty() {
                 return Ok(Vec::new());
             } else {
