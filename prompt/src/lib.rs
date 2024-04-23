@@ -346,3 +346,13 @@ where
         }
     }
 }
+
+impl<T> Prompting for Box<T>
+where
+    T: Prompting,
+{
+    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+        let a: T = T::prompt(name)?;
+        Ok(Box::new(a))
+    }
+}
