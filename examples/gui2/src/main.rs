@@ -35,46 +35,6 @@ impl CustomEvent {
     }
 }
 
-#[derive(Default)]
-pub enum TestEnum2 {
-    #[default]
-    Option1,
-    Option2,
-    Option3 {
-        asdf: u8,
-        fdsa: u8,
-    },
-}
-
-impl prompt::EguiPrompting for TestEnum2 {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
-        let combobox = if let Some(name) = name {
-            let mut s = "Select a ".to_string();
-            s.push_str(&name);
-            egui::ComboBox::from_label(s)
-        } else {
-            egui::ComboBox::from_label("Select")
-        };
-        let val = match self {
-            Self::Option1 => "Option1",
-            Self::Option2 => "Option2",
-            Self::Option3 { .. } => "Option3",
-        };
-        combobox.selected_text(val).show_ui(ui, |ui| {
-            if ui.selectable_label(false, "Option1").clicked() {
-                *self = Self::Option1;
-            }
-            if ui.selectable_label(false, "Option2").clicked() {
-                *self = Self::Option2;
-            }
-            if ui.selectable_label(false, "Option3").clicked() {
-                *self = Self::Option3 { asdf: 0, fdsa: 0 };
-            }
-        });
-        Ok(())
-    }
-}
-
 #[derive(Default, EguiPrompting)]
 pub enum TestEnum {
     #[default]
@@ -84,6 +44,7 @@ pub enum TestEnum {
         asdf: u8,
         fdsa: u8,
     },
+    Option4(u8, u8),
 }
 
 #[derive(Default, EguiPrompting)]
@@ -93,7 +54,6 @@ pub struct Test {
     pw2: prompt::Password2,
     val_u8: u8,
     test_enum1: TestEnum,
-    test_enum2: TestEnum2,
 }
 
 pub struct PopupWindow {

@@ -1,6 +1,7 @@
 use proc_macro::TokenStream;
 use syn::{DeriveInput, Ident};
 
+#[cfg(feature = "egui")]
 fn build_enum_variant_builder(v: &syn::Variant) -> proc_macro2::TokenStream {
     let sident = proc_macro2::Ident::new("Self", proc_macro2::Span::call_site());
     match &v.fields {
@@ -47,20 +48,11 @@ fn build_enum_variant_builder(v: &syn::Variant) -> proc_macro2::TokenStream {
             let mut def: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
             let mut tokens: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
             for (i, f) in f.unnamed.iter().enumerate() {
-                if i != 0 {
-                    tokens.extend([proc_macro2::TokenTree::Punct(
+                let ty = &f.ty;
+                tokens.extend(quote::quote!(<#ty as core::default::Default>::default()));
+                tokens.extend([proc_macro2::TokenTree::Punct(
                         proc_macro2::Punct::new(',', proc_macro2::Spacing::Alone),
                     )]);
-                }
-                tokens.extend([proc_macro2::TokenTree::Literal(
-                    proc_macro2::Literal::usize_unsuffixed(i),
-                )]);
-                let ftype = &f.ty;
-                let val = quote::quote!(<#ftype as prompt::Prompting>::prompt(Some(&format!("{}", #i)))?);
-                tokens.extend([proc_macro2::TokenTree::Punct(
-                    proc_macro2::Punct::new(':', proc_macro2::Spacing::Alone),
-                )]);
-                tokens.extend(val);
             }
             def.extend(tokens);
 
@@ -78,7 +70,7 @@ fn build_enum_variant_builder(v: &syn::Variant) -> proc_macro2::TokenStream {
             ]);
             tokens.extend([proc_macro2::TokenTree::Ident(v.ident.clone())]);
             tokens.extend([proc_macro2::TokenTree::Group(proc_macro2::Group::new(
-                proc_macro2::Delimiter::Brace,
+                proc_macro2::Delimiter::Parenthesis,
                 def,
             ))]);
             tokens
@@ -104,6 +96,93 @@ fn build_enum_variant_builder(v: &syn::Variant) -> proc_macro2::TokenStream {
 
 /// Builds a match pair for a given enum variant to help convert an enum to a string
 #[cfg(feature = "egui")]
+fn build_enum_variant_to_fields(v: &syn::Variant) -> (proc_macro2::TokenStream, Vec<&syn::Field>) {
+    let sident = proc_macro2::Ident::new("Self", proc_macro2::Span::call_site());
+    let mut fields = Vec::new();
+    let q: proc_macro2::TokenStream = match &v.fields {
+        syn::Fields::Named(f) => {
+            let mut def: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+            let mut tokens: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+            for f in f.named.iter() {
+                println!("IDENT IS {:?}", f.ident);
+                tokens.extend([proc_macro2::TokenTree::Ident(
+                    f.ident.as_ref().unwrap().clone(),
+                )]);
+                tokens.extend([proc_macro2::TokenTree::Punct(
+                    proc_macro2::Punct::new(',', proc_macro2::Spacing::Alone),
+                )]);
+                fields.push(f);
+            }
+            def.extend(tokens);
+
+            let mut tokens: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+            tokens.extend([proc_macro2::TokenTree::Ident(sident.clone())]);
+            tokens.extend([
+                proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                    ':',
+                    proc_macro2::Spacing::Joint,
+                )),
+                proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                    ':',
+                    proc_macro2::Spacing::Alone,
+                )),
+            ]);
+            tokens.extend([proc_macro2::TokenTree::Ident(v.ident.clone())]);
+            tokens.extend([proc_macro2::TokenTree::Group(proc_macro2::Group::new(
+                proc_macro2::Delimiter::Brace,
+                def,
+            ))]);
+            tokens
+        }
+        syn::Fields::Unnamed(f) => {
+            let mut tokens: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+            tokens.extend([proc_macro2::TokenTree::Ident(sident.clone())]);
+            tokens.extend([
+                proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                    ':',
+                    proc_macro2::Spacing::Joint,
+                )),
+                proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                    ':',
+                    proc_macro2::Spacing::Alone,
+                )),
+            ]);
+            tokens.extend([proc_macro2::TokenTree::Ident(v.ident.clone())]);
+            let mut tokens2: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+            for (i, f) in f.unnamed.iter().enumerate() {
+                let varname = quote::format_ident!("a_{}", i);
+                tokens2.extend([proc_macro2::TokenTree::Ident(
+                    varname,
+                )]);
+                tokens2.extend([proc_macro2::TokenTree::Punct(
+                    proc_macro2::Punct::new(',', proc_macro2::Spacing::Alone),
+                )]);
+                fields.push(f);
+            }
+            quote::quote!{#tokens (#tokens2)}
+        }
+        syn::Fields::Unit => {
+            let mut tokens: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+            tokens.extend([proc_macro2::TokenTree::Ident(sident.clone())]);
+            tokens.extend([
+                proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                    ':',
+                    proc_macro2::Spacing::Joint,
+                )),
+                proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                    ':',
+                    proc_macro2::Spacing::Alone,
+                )),
+            ]);
+            tokens.extend([proc_macro2::TokenTree::Ident(v.ident.clone())]);
+            tokens
+        }
+    };
+    (q, fields)
+}
+
+/// Builds a match pair for a given enum variant to help convert an enum to a string
+#[cfg(feature = "egui")]
 fn build_enum_variant_to_string(v: &syn::Variant) -> (proc_macro2::TokenStream, String) {
     let sident = proc_macro2::Ident::new("Self", proc_macro2::Span::call_site());
     let text2 = v.ident.to_string();
@@ -112,7 +191,6 @@ fn build_enum_variant_to_string(v: &syn::Variant) -> (proc_macro2::TokenStream, 
             let mut def: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
             let mut tokens: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
             for f in f.named.iter() {
-                println!("IDENT IS {:?}", f.ident);
                 tokens.extend([proc_macro2::TokenTree::Ident(
                     f.ident.as_ref().unwrap().clone(),
                 )]);
@@ -142,26 +220,6 @@ fn build_enum_variant_to_string(v: &syn::Variant) -> (proc_macro2::TokenStream, 
             tokens
         }
         syn::Fields::Unnamed(f) => {
-            let mut def: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
-            let mut tokens: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
-            for (i, f) in f.unnamed.iter().enumerate() {
-                if i != 0 {
-                    tokens.extend([proc_macro2::TokenTree::Punct(
-                        proc_macro2::Punct::new(',', proc_macro2::Spacing::Alone),
-                    )]);
-                }
-                tokens.extend([proc_macro2::TokenTree::Literal(
-                    proc_macro2::Literal::usize_unsuffixed(i),
-                )]);
-                let ftype = &f.ty;
-                let val = quote::quote!(<#ftype as prompt::Prompting>::prompt(Some(&format!("{}", #i)))?);
-                tokens.extend([proc_macro2::TokenTree::Punct(
-                    proc_macro2::Punct::new(':', proc_macro2::Spacing::Alone),
-                )]);
-                tokens.extend(val);
-            }
-            def.extend(tokens);
-
             let mut tokens: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
             tokens.extend([proc_macro2::TokenTree::Ident(sident.clone())]);
             tokens.extend([
@@ -175,11 +233,17 @@ fn build_enum_variant_to_string(v: &syn::Variant) -> (proc_macro2::TokenStream, 
                 )),
             ]);
             tokens.extend([proc_macro2::TokenTree::Ident(v.ident.clone())]);
-            tokens.extend([proc_macro2::TokenTree::Group(proc_macro2::Group::new(
-                proc_macro2::Delimiter::Brace,
-                def,
-            ))]);
-            tokens
+            let mut tokens2: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+            for (i, _f) in f.unnamed.iter().enumerate() {
+                let varname = quote::format_ident!("a_{}", i);
+                tokens2.extend([proc_macro2::TokenTree::Ident(
+                    varname,
+                )]);
+                tokens2.extend([proc_macro2::TokenTree::Punct(
+                    proc_macro2::Punct::new(',', proc_macro2::Spacing::Alone),
+                )]);
+            }
+            quote::quote!{#tokens (#tokens2)}
         }
         syn::Fields::Unit => {
             let mut tokens: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
@@ -253,12 +317,45 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
                 combo_stuff.extend(q);
             }
 
+            let mut option_prompt: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+            for v in &e.variants {
+                let (q, f) = build_enum_variant_to_fields(v);
+                let mut option_code: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+                if !f.is_empty() {
+                    for (i, f) in f.iter().enumerate() {
+                        if let Some(ident) = &f.ident {
+                            let varname = quote::format_ident!("{}", ident);
+                            let text = ident.to_string();
+                            let q: proc_macro2::TokenStream = quote::quote! {
+                                #varname.build_gui(ui, Some(#text))?;
+                            };
+                            option_code.extend(q);
+                        }
+                        else {
+                            let varname = quote::format_ident!("a_{}", i);
+                            let text = format!("{}", i);
+                            let q: proc_macro2::TokenStream = quote::quote! {
+                                #varname.build_gui(ui, Some(#text))?;
+                            };
+                            option_code.extend(q);
+                        }
+                    }
+                    option_prompt.extend(quote::quote! {
+                        #q => { #option_code },
+                    });
+                }
+            }
+
             expanded = quote::quote! {
                 impl prompt::EguiPrompting for #sident {
                     fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
                         #field_stuff
                         combobox.selected_text(val)
                             .show_ui(ui, |ui| { #combo_stuff });
+                        match self {
+                            #option_prompt
+                            _ => {}
+                        }
                         Ok(())
                     }
                 }
