@@ -327,7 +327,8 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
                             let varname = quote::format_ident!("{}", ident);
                             let text = ident.to_string();
                             let q: proc_macro2::TokenStream = quote::quote! {
-                                #varname.build_gui(ui, Some(#text))?;
+                                let subname = format!("{}/{}", name.unwrap_or(""), #text);
+                                #varname.build_gui(ui, Some(&subname))?;
                             };
                             option_code.extend(q);
                         }
@@ -335,7 +336,8 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
                             let varname = quote::format_ident!("a_{}", i);
                             let text = format!("{}", i);
                             let q: proc_macro2::TokenStream = quote::quote! {
-                                #varname.build_gui(ui, Some(#text))?;
+                                let subname = format!("{}/{}", name.unwrap_or(""), #text);
+                                #varname.build_gui(ui, Some(&subname))?;
                             };
                             option_code.extend(q);
                         }
@@ -379,7 +381,8 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
                         let text = ident.to_string();
                         let varname = quote::format_ident!("{}", ident);
                         let q: proc_macro2::TokenStream = quote::quote! {
-                            self.#varname.build_gui(ui, Some(#text))?;
+                            let subname = format!("{}/{}", name.unwrap_or(""), #text);
+                            self.#varname.build_gui(ui, Some(&subname))?;
                         };
                         field_stuff.extend(q);
                     }
