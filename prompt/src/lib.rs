@@ -231,6 +231,7 @@ impl EguiPrompting for std::path::PathBuf {
 }
 
 /// A hashmap with a selection added
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SelectedHashMap<T> {
     map: std::collections::HashMap<String, T>,
     selection: Option<String>,
