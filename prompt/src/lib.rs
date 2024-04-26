@@ -86,6 +86,297 @@ impl EguiPrompting for i8 {
     }
 }
 
+#[cfg(feature = "egui")]
+impl EguiPrompting for u16 {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        let mut s = self.to_string();
+        s.build_gui(ui, name)?;
+        if let Ok(val) = s.parse::<Self>() {
+            *self = val;
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "egui")]
+impl EguiPrompting for i16 {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        let mut s = self.to_string();
+        s.build_gui(ui, name)?;
+        if let Ok(val) = s.parse::<Self>() {
+            *self = val;
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "egui")]
+impl EguiPrompting for u32 {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        let mut s = self.to_string();
+        s.build_gui(ui, name)?;
+        if let Ok(val) = s.parse::<Self>() {
+            *self = val;
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "egui")]
+impl EguiPrompting for i32 {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        let mut s = self.to_string();
+        s.build_gui(ui, name)?;
+        if let Ok(val) = s.parse::<Self>() {
+            *self = val;
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "egui")]
+impl EguiPrompting for u64 {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        let mut s = self.to_string();
+        s.build_gui(ui, name)?;
+        if let Ok(val) = s.parse::<Self>() {
+            *self = val;
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "egui")]
+impl EguiPrompting for i64 {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        let mut s = self.to_string();
+        s.build_gui(ui, name)?;
+        if let Ok(val) = s.parse::<Self>() {
+            *self = val;
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "egui")]
+impl EguiPrompting for usize {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        let mut s = self.to_string();
+        s.build_gui(ui, name)?;
+        if let Ok(val) = s.parse::<Self>() {
+            *self = val;
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "egui")]
+impl EguiPrompting for isize {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        let mut s = self.to_string();
+        s.build_gui(ui, name)?;
+        if let Ok(val) = s.parse::<Self>() {
+            *self = val;
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "egui")]
+impl EguiPrompting for f32 {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        let mut s = self.to_string();
+        s.build_gui(ui, name)?;
+        if let Ok(val) = s.parse::<Self>() {
+            *self = val;
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "egui")]
+impl EguiPrompting for f64 {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        let mut s = self.to_string();
+        s.build_gui(ui, name)?;
+        if let Ok(val) = s.parse::<Self>() {
+            *self = val;
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "egui")]
+impl EguiPrompting for bool {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        let mut s = self.to_string();
+        s.build_gui(ui, name)?;
+        if let Ok(val) = s.parse::<Self>() {
+            *self = val;
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "egui")]
+impl EguiPrompting for std::path::PathBuf {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        let mut s = self.display().to_string();
+        s.build_gui(ui, name)?;
+        if let Ok(val) = s.parse::<Self>() {
+            *self = val;
+        }
+        Ok(())
+    }
+}
+
+/// A hashmap with a selection added
+pub struct SelectedHashMap<T> {
+    map: std::collections::HashMap<String, T>,
+    selection: Option<String>,
+    new_selection: String,
+}
+
+impl<T> SelectedHashMap<T> {
+    /// Construct a new Self
+    pub fn new() -> Self {
+        Self {
+            map: std::collections::HashMap::new(),
+            selection: None,
+            new_selection: String::new(),
+        }
+    }
+
+    /// Get a reference to the underlying map
+    pub fn map(&self) -> &std::collections::HashMap<String, T> {
+        &self.map
+    }
+
+    /// Get a mutable reference to the underlying map
+    pub fn map_mut(&mut self) -> &mut std::collections::HashMap<String, T> {
+        &mut self.map
+    }
+}
+
+impl<T> Default for SelectedHashMap<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[cfg(feature = "egui")]
+impl<T> EguiPrompting for SelectedHashMap<T>
+where
+    T: EguiPrompting + std::default::Default,
+{
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        if let Some(n) = name {
+            ui.label(n);
+        }
+        let n = if let Some(n) = name {
+            format!("{} ", n)
+        }
+        else {
+            " ".to_string()
+        };
+        egui::ComboBox::from_label(format!("Select a {}type!", n))
+            .selected_text(self.selection.as_ref().unwrap_or(&format!("Selection")))
+            .show_ui(ui, |ui| {
+                for elem in self.map.keys() {
+                    if ui.selectable_label(false, elem).clicked() {
+                        self.selection = Some(elem.to_string());
+                    }
+                }
+            });
+        ui.label(format!("Name for new {}", n));
+        ui.text_edit_singleline(&mut self.new_selection);
+        if ui.button("Add new entry").clicked() {
+            self.map.insert(
+                self.new_selection.to_owned(),
+                T::default(),
+            );
+            self.selection = Some(self.new_selection.to_owned());
+        }
+        if let Some(s) = &self.selection {
+            if let Some(e) = self.map.get_mut(s) {
+                let tname = if let Some(n) = name {
+                    n.to_string()
+                } else {
+                    "item".to_string()
+                };
+                let cname = format!("Entry {} for {}", s, tname);
+                e.build_gui(ui, Some(&cname))?;
+            }
+            if ui.button("Delete this entry").clicked() {
+                self.map.remove(s);
+                self.selection = None;
+            }
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "egui")]
+impl<T> EguiPrompting for Vec<T>
+where
+    T: core::str::FromStr + core::fmt::Display,
+{
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        if let Some(n) = name {
+            ui.label(n);
+        }
+        let s: Vec<String> = self.iter().map(|a| a.to_string()).collect();
+        let mut combined = s.join("\n");
+        if ui.text_edit_multiline(&mut combined).changed() {
+            let v: Vec<&str> = combined.split("\n").collect();
+            let mut newvec: Vec<T> = Vec::new();
+            for elem in v {
+                if let Ok(e) = T::from_str(elem) {
+                    newvec.push(e);
+                }
+                else {
+                    return Err(format!("Invalid element {}", elem));
+                }
+            }
+            *self = newvec;
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "egui")]
+impl<T> EguiPrompting for Option<T>
+where
+    T: EguiPrompting + Default,
+{
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        let mut checked = self.is_some();
+        if ui.checkbox(&mut checked, name.unwrap_or("Item")).changed() {
+            if checked {
+                *self = Some(T::default());
+            }
+            else {
+                *self = None;
+            }
+        }
+        if let Some(thing) = self {
+            thing.build_gui(ui, name)?;
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "egui")]
+impl<T> EguiPrompting for Box<T>
+where
+    T: EguiPrompting,
+{
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        self.as_mut().build_gui(ui, name)
+    }
+}
+
+
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 /// This is a type that allows a user to enter a passowrd without revealing that password onscreen.
@@ -342,6 +633,32 @@ impl Prompting for bool {
 impl Prompting for std::path::PathBuf {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
         Self::prompt_generic::<Self>(name)
+    }
+}
+
+impl<T> Prompting for SelectedHashMap<T>
+where
+    T: Prompting,
+{
+    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+        use std::io::Write;
+        if let Some(n) = name {
+            print!("{}: ", n);
+            std::io::stdout().flush().unwrap();
+        }
+        let mut hm = SelectedHashMap::new();
+        loop {
+            print!("Enter key name (blank to end):");
+            std::io::stdout().flush().unwrap();
+            let key = String::prompt(None).unwrap();
+            if key.is_empty() {
+                println!("Done");
+                break;
+            }
+            let t = T::prompt(None).unwrap();
+            hm.map.insert(key, t);
+        }
+        Ok(hm)
     }
 }
 
