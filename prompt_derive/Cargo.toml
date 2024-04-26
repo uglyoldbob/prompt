@@ -12,3 +12,6 @@ syn = "2.0.55"
 
 [lib]
 proc-macro = true
+
+[features]
+egui = [ ]

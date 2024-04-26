@@ -1,0 +1,9 @@
+[package]
+name = "example-gui2"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+egui-multiwin = "0.4.0"
+prompt = { path = "../../prompt", features = ["egui"] }

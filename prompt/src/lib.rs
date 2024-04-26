@@ -2,6 +2,90 @@
 
 pub use prompt_derive::Prompting;
 
+#[cfg(feature = "egui")]
+pub use prompt_derive::EguiPrompting;
+
+#[cfg(feature = "egui")]
+pub use egui;
+
+#[cfg(feature = "egui")]
+/// The trait involved in building a input form for egui
+pub trait EguiPrompting: Sized {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String>;
+}
+
+#[cfg(feature = "egui")]
+impl EguiPrompting for String {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        if let Some(n) = name {
+            ui.label(n);
+        }
+        ui.text_edit_singleline(self);
+        Ok(())
+    }
+}
+
+#[cfg(feature = "egui")]
+impl EguiPrompting for Password {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        if let Some(n) = name {
+            ui.label(n);
+        }
+        let p: &mut String = &mut self.0;
+        let pe = egui::TextEdit::singleline(p).password(true);
+        ui.add(pe);
+        if self.0.is_empty() {
+            return Err(format!("{} password is blank", name.unwrap_or("")));
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "egui")]
+impl EguiPrompting for Password2 {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        if let Some(n) = name {
+            ui.label(n);
+        }
+        let p: &mut String = &mut self.0;
+        let pe = egui::TextEdit::singleline(p).password(true);
+        ui.add(pe);
+        let p: &mut String = &mut self.1;
+        let pe = egui::TextEdit::singleline(p).password(true);
+        ui.add(pe);
+        if !self.0.is_empty() && self.0 == self.1 {
+            Ok(())
+        }
+        else {
+            Err(format!("{} password does not match", name.unwrap_or("")))
+        }
+    }
+}
+
+#[cfg(feature = "egui")]
+impl EguiPrompting for u8 {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        let mut s = self.to_string();
+        s.build_gui(ui, name)?;
+        if let Ok(val) = s.parse::<Self>() {
+            *self = val;
+        }
+        Ok(())
+    }
+}
+
+#[cfg(feature = "egui")]
+impl EguiPrompting for i8 {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        let mut s = self.to_string();
+        s.build_gui(ui, name)?;
+        if let Ok(val) = s.parse::<Self>() {
+            *self = val;
+        }
+        Ok(())
+    }
+}
+
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 /// This is a type that allows a user to enter a passowrd without revealing that password onscreen.
@@ -124,11 +208,6 @@ impl Password2 {
     pub fn matches(&self) -> bool {
         self.0 == self.1
     }
-}
-
-/// This trait is for types that can be created with user input
-pub trait Prompter<T> {
-    fn prompt(&mut self) -> Result<T, Error>;
 }
 
 /// The types of errors that can occur when prompting for user input.

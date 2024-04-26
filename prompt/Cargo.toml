@@ -9,9 +9,12 @@ repository = "https://github.com/uglyoldbob/prompt"
 
 
 [dependencies]
+egui = {version = "0.27.2", optional = true }
 prompt_derive = { version = "0.0.1", path = "../prompt_derive" }
 rpassword = "7.3.1"
-serde = {version = "1.0.197", optional = true }
+serde = {version = "1.0.197", features = ["serde_derive"], optional = true }
 
 [features]
+default = ["egui"]
 serde = [ "dep:serde" ]
+egui = [ "dep:egui", "prompt_derive/egui" ]

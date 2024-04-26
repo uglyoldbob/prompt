@@ -2,4 +2,5 @@
 members = [
     "prompt",
     "prompt_derive",
+    "examples/*"
 ]
