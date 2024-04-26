@@ -49,6 +49,7 @@ pub enum TestEnum {
 
 #[derive(Default, EguiPrompting)]
 pub struct Test {
+    booltest: bool,
     string: String,
     val_u8: u8,
     test_enum1: TestEnum,

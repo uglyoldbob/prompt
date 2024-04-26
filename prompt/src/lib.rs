@@ -209,11 +209,13 @@ impl EguiPrompting for f64 {
 #[cfg(feature = "egui")]
 impl EguiPrompting for bool {
     fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
-        let mut s = self.to_string();
-        s.build_gui(ui, name)?;
-        if let Ok(val) = s.parse::<Self>() {
-            *self = val;
+        let cname = if let Some(n) = name {
+            n.to_string()
         }
+        else {
+            "Item".to_string()
+        };
+        ui.checkbox(self, cname);
         Ok(())
     }
 }
