@@ -4,16 +4,21 @@ pub use prompt_derive::Prompting;
 
 /// This is used to open existing files on the filesystem
 #[derive(Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FileOpen {
     /// The pathbuf
     pb: std::path::PathBuf,
     /// The optional filter for the open dialog
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     pub filter: Option<(String, Vec<String>)>,
     /// The initial directory
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     pub initial_dir: Option<std::path::PathBuf>,
     /// The initial filename
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     pub initial_file: Option<String>,
     /// The file dialog title
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     pub title: Option<String>,
 }
 
@@ -26,14 +31,18 @@ impl std::ops::Deref for FileOpen {
 
 /// This is used to create new files on the filesystem
 #[derive(Default)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FileCreate {
     /// The pathbuf
     pb: std::path::PathBuf,
     /// The optional filter for the open dialog
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     pub filter: Option<(String, Vec<String>)>,
     /// The initial directory
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     pub initial_dir: Option<std::path::PathBuf>,
     /// The file dialog title
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     pub title: Option<String>,
 }
 
@@ -84,6 +93,18 @@ impl EguiPrompting for FileOpen {
     }
 }
 
+impl Prompting for FileOpen {
+    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+        Ok(Self {
+            pb: <std::path::PathBuf as Prompting>::prompt(name)?,
+            filter: None,
+            initial_dir: None,
+            initial_file: None,
+            title: None,
+        })
+    }
+}
+
 #[cfg(feature = "egui")]
 impl EguiPrompting for FileCreate {
     fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
@@ -118,6 +139,17 @@ impl EguiPrompting for FileCreate {
         else {
             Err("Selected file does not exist".to_string())
         }
+    }
+}
+
+impl Prompting for FileCreate {
+    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+        Ok(Self {
+            pb: <std::path::PathBuf as Prompting>::prompt(name)?,
+            filter: None,
+            initial_dir: None,
+            title: None,
+        })
     }
 }
 
@@ -356,7 +388,9 @@ impl EguiPrompting for std::path::PathBuf {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SelectedHashMap<T> {
     map: std::collections::HashMap<String, T>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     selection: Option<String>,
+    #[cfg_attr(feature = "serde", serde(skip_serializing))]
     new_selection: String,
 }
 

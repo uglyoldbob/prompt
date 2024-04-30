@@ -104,7 +104,6 @@ fn build_enum_variant_to_fields(v: &syn::Variant) -> (proc_macro2::TokenStream, 
             let mut def: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
             let mut tokens: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
             for f in f.named.iter() {
-                println!("IDENT IS {:?}", f.ident);
                 tokens.extend([proc_macro2::TokenTree::Ident(
                     f.ident.as_ref().unwrap().clone(),
                 )]);
