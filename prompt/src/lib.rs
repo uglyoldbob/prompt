@@ -2,6 +2,111 @@
 
 pub use prompt_derive::Prompting;
 
+/// This is used to open existing files on the filesystem
+#[derive(Default)]
+pub struct FileOpen {
+    /// The pathbuf
+    pb: std::path::PathBuf,
+    /// The optional filter for the open dialog
+    pub filter: Option<(String, Vec<String>)>,
+    /// The initial directory
+    pub initial_dir: Option<std::path::PathBuf>,
+    /// The initial filename
+    pub initial_file: Option<String>,
+    /// The file dialog title
+    pub title: Option<String>,
+}
+
+/// This is used to create new files on the filesystem
+#[derive(Default)]
+pub struct FileCreate {
+    /// The pathbuf
+    pb: std::path::PathBuf,
+    /// The optional filter for the open dialog
+    pub filter: Option<(String, Vec<String>)>,
+    /// The initial directory
+    pub initial_dir: Option<std::path::PathBuf>,
+    /// The file dialog title
+    pub title: Option<String>,
+}
+
+#[cfg(feature = "egui")]
+impl EguiPrompting for FileOpen {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        if let Some(n) = name {
+            ui.label(n);
+        }
+        ui.label(self.pb.display().to_string());
+        let n = if let Some(n) = name {
+            format!(" {}", n)
+        }
+        else {
+            format!("")
+        };
+        if ui.button(format!("Update{}", n)).clicked() {
+            let mut dialog = rfd::FileDialog::new();
+            if let Some((a, b)) = &self.filter {
+                dialog = dialog.add_filter(a, b);
+            }
+            if let Some(p) = &self.initial_dir {
+                dialog = dialog.set_directory(p);
+            }
+            if let Some(f) = &self.initial_file {
+                dialog = dialog.set_file_name(f);
+            }
+            if let Some(t) = &self.title {
+                dialog = dialog.set_title(t);
+            }
+            if let Some(path) = dialog.pick_file() {
+                self.pb = path;
+            }
+        }
+        if self.pb.exists() {
+            Ok(())
+        }
+        else {
+            Err("Selected file does not exist".to_string())
+        }
+    }
+}
+
+#[cfg(feature = "egui")]
+impl EguiPrompting for FileCreate {
+    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+        if let Some(n) = name {
+            ui.label(n);
+        }
+        ui.label(self.pb.display().to_string());
+        let n = if let Some(n) = name {
+            format!(" {}", n)
+        }
+        else {
+            format!("")
+        };
+        if ui.button(format!("Update{}", n)).clicked() {
+            let mut dialog = rfd::FileDialog::new();
+            if let Some((a, b)) = &self.filter {
+                dialog = dialog.add_filter(a, b);
+            }
+            if let Some(p) = &self.initial_dir {
+                dialog = dialog.set_directory(p);
+            }
+            if let Some(t) = &self.title {
+                dialog = dialog.set_title(t);
+            }
+            if let Some(path) = dialog.pick_file() {
+                self.pb = path;
+            }
+        }
+        if !self.pb.exists() {
+            Ok(())
+        }
+        else {
+            Err("Selected file does not exist".to_string())
+        }
+    }
+}
+
 #[cfg(feature = "egui")]
 pub use prompt_derive::EguiPrompting;
 

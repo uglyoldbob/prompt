@@ -65,6 +65,8 @@ pub struct Test {
     val_f32: f32,
     val_f64: f64,
     val_pb: std::path::PathBuf,
+    val_pb2: prompt::FileOpen,
+    val_pb3: prompt::FileCreate,
     vec_u8: Vec<u8>,
     optional: Option<String>,
     boxed_string: Box<String>,
@@ -113,6 +115,8 @@ impl TrackedWindow for PopupWindow {
     ) -> RedrawResponse {
         let quit = false;
         egui_multiwin::egui::CentralPanel::default().show(&egui.egui_ctx, |ui| {
+            self.test.val_pb2.title = Some("Test title".to_string());
+            self.test.val_pb2.filter = Some(("Test file".to_string(), vec!["*.txt".to_string()]));
             egui_multiwin::egui::ScrollArea::vertical()
                 .auto_shrink([false; 2])
                 .show(ui, |ui| match self.test.build_gui(ui, Some("test")) {
