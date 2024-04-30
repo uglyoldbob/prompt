@@ -3,7 +3,7 @@
 pub use prompt_derive::Prompting;
 
 /// This is used to open existing files on the filesystem
-#[derive(Default)]
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FileOpen {
     /// The pathbuf
@@ -30,7 +30,7 @@ impl std::ops::Deref for FileOpen {
 }
 
 /// This is used to create new files on the filesystem
-#[derive(Default)]
+#[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FileCreate {
     /// The pathbuf
