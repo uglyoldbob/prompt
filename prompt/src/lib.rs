@@ -17,6 +17,13 @@ pub struct FileOpen {
     pub title: Option<String>,
 }
 
+impl std::ops::Deref for FileOpen {
+    type Target = std::path::PathBuf;
+    fn deref(&self) -> &Self::Target {
+        &self.pb
+    }
+}
+
 /// This is used to create new files on the filesystem
 #[derive(Default)]
 pub struct FileCreate {
@@ -28,6 +35,13 @@ pub struct FileCreate {
     pub initial_dir: Option<std::path::PathBuf>,
     /// The file dialog title
     pub title: Option<String>,
+}
+
+impl std::ops::Deref for FileCreate {
+    type Target = std::path::PathBuf;
+    fn deref(&self) -> &Self::Target {
+        &self.pb
+    }
 }
 
 #[cfg(feature = "egui")]
