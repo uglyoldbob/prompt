@@ -95,8 +95,18 @@ impl EguiPrompting for FileOpen {
 
 impl Prompting for FileOpen {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
+        let mut pb;
+        loop {
+            pb = <std::path::PathBuf as Prompting>::prompt(name)?;
+            if !pb.exists() {
+                println!("That does not exist, please try again");
+            }
+            else {
+                break;
+            }
+        }
         Ok(Self {
-            pb: <std::path::PathBuf as Prompting>::prompt(name)?,
+            pb,
             filter: None,
             initial_dir: None,
             initial_file: None,
@@ -144,8 +154,18 @@ impl EguiPrompting for FileCreate {
 
 impl Prompting for FileCreate {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
+        let mut pb;
+        loop {
+            pb = <std::path::PathBuf as Prompting>::prompt(name)?;
+            if pb.exists() {
+                println!("That already exists, please try again");
+            }
+            else {
+                break;
+            }
+        }
         Ok(Self {
-            pb: <std::path::PathBuf as Prompting>::prompt(name)?,
+            pb,
             filter: None,
             initial_dir: None,
             title: None,
