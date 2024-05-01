@@ -9,16 +9,16 @@ pub struct FileOpen {
     /// The pathbuf
     pb: std::path::PathBuf,
     /// The optional filter for the open dialog
-    #[cfg_attr(feature = "serde", serde(skip_serializing))]
+    #[cfg_attr(feature = "serde", serde(skip))]
     pub filter: Option<(String, Vec<String>)>,
     /// The initial directory
-    #[cfg_attr(feature = "serde", serde(skip_serializing))]
+    #[cfg_attr(feature = "serde", serde(skip))]
     pub initial_dir: Option<std::path::PathBuf>,
     /// The initial filename
-    #[cfg_attr(feature = "serde", serde(skip_serializing))]
+    #[cfg_attr(feature = "serde", serde(skip))]
     pub initial_file: Option<String>,
     /// The file dialog title
-    #[cfg_attr(feature = "serde", serde(skip_serializing))]
+    #[cfg_attr(feature = "serde", serde(skip))]
     pub title: Option<String>,
 }
 
@@ -36,13 +36,13 @@ pub struct FileCreate {
     /// The pathbuf
     pb: std::path::PathBuf,
     /// The optional filter for the open dialog
-    #[cfg_attr(feature = "serde", serde(skip_serializing))]
+    #[cfg_attr(feature = "serde", serde(skip))]
     pub filter: Option<(String, Vec<String>)>,
     /// The initial directory
-    #[cfg_attr(feature = "serde", serde(skip_serializing))]
+    #[cfg_attr(feature = "serde", serde(skip))]
     pub initial_dir: Option<std::path::PathBuf>,
     /// The file dialog title
-    #[cfg_attr(feature = "serde", serde(skip_serializing))]
+    #[cfg_attr(feature = "serde", serde(skip))]
     pub title: Option<String>,
 }
 
@@ -408,9 +408,9 @@ impl EguiPrompting for std::path::PathBuf {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SelectedHashMap<T> {
     map: std::collections::HashMap<String, T>,
-    #[cfg_attr(feature = "serde", serde(skip_serializing))]
+    #[cfg_attr(feature = "serde", serde(skip))]
     selection: Option<String>,
-    #[cfg_attr(feature = "serde", serde(skip_serializing))]
+    #[cfg_attr(feature = "serde", serde(skip))]
     new_selection: String,
 }
 
