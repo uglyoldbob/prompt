@@ -46,7 +46,6 @@ pub struct Test {
     val_f32: f32,
     val_f64: f64,
     val_pb: std::path::PathBuf,
-    val_pb2: prompt::FileOpen,
     val_pb3: prompt::FileCreate,
     vec_u8: Vec<u8>,
     optional: Option<String>,
@@ -54,6 +53,7 @@ pub struct Test {
     hm: prompt::SelectedHashMap<String>,
     pw: prompt::Password,
     pw2: prompt::Password2,
+    val_pb2: prompt::FileOpen,
 }
 
 #[derive(Default)]

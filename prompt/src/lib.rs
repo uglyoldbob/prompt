@@ -139,7 +139,7 @@ impl EguiPrompting for FileCreate {
             if let Some(t) = &self.title {
                 dialog = dialog.set_title(t);
             }
-            if let Some(path) = dialog.pick_file() {
+            if let Some(path) = dialog.save_file() {
                 self.pb = path;
             }
         }
