@@ -29,6 +29,12 @@ impl std::ops::Deref for FileOpen {
     }
 }
 
+impl std::ops::DerefMut for FileOpen {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.pb
+    }
+}
+
 /// This is used to create new files on the filesystem
 #[derive(Clone, Debug, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -50,6 +56,12 @@ impl std::ops::Deref for FileCreate {
     type Target = std::path::PathBuf;
     fn deref(&self) -> &Self::Target {
         &self.pb
+    }
+}
+
+impl std::ops::DerefMut for FileCreate {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.pb
     }
 }
 
