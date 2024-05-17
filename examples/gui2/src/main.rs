@@ -3,7 +3,7 @@ pub mod egui_multiwin_dynamic {
     egui_multiwin::multi_window!(crate::AppCommon, crate::CustomEvent, crate::MyWindows);
 }
 
-use prompt::EguiPrompting;
+use userprompt::EguiPrompting;
 
 #[enum_dispatch(TrackedWindow)]
 pub enum MyWindows {
@@ -65,14 +65,14 @@ pub struct Test {
     val_f32: f32,
     val_f64: f64,
     val_pb: std::path::PathBuf,
-    val_pb3: prompt::FileCreate,
+    val_pb3: userprompt::FileCreate,
     vec_u8: Vec<u8>,
     optional: Option<String>,
     boxed_string: Box<String>,
-    hm: prompt::SelectedHashMap<String>,
-    pw: prompt::Password,
-    pw2: prompt::Password2,
-    val_pb2: prompt::FileOpen,
+    hm: userprompt::SelectedHashMap<String>,
+    pw: userprompt::Password,
+    pw2: userprompt::Password2,
+    val_pb2: userprompt::FileOpen,
 }
 
 pub struct PopupWindow {

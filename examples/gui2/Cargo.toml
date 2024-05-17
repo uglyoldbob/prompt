@@ -6,4 +6,4 @@ publish = false
 
 [dependencies]
 egui-multiwin = "0.4.0"
-prompt = { path = "../../prompt", features = ["egui"] }
+userprompt = { path = "../../userprompt", features = ["egui"] }

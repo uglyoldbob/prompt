@@ -6,5 +6,5 @@ publish = false
 
 [dependencies]
 eframe = "0.27.2"
-prompt = { path = "../../prompt", features = ["egui"] }
+userprompt = { path = "../../userprompt", features = ["egui"] }
 simple_logger = "4.3.3"

@@ -1242,8 +1242,8 @@ name = "example-gui"
 version = "0.1.0"
 dependencies = [
  "eframe",
- "prompt",
  "simple_logger",
+ "userprompt",
 ]
 
 [[package]]
@@ -1251,14 +1251,14 @@ name = "example-gui2"
 version = "0.1.0"
 dependencies = [
  "egui-multiwin",
- "prompt",
+ "userprompt",
 ]
 
 [[package]]
 name = "example-main"
 version = "0.1.0"
 dependencies = [
- "prompt",
+ "userprompt",
 ]
 
 [[package]]
@@ -2341,26 +2341,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43d84d1d7a6ac92673717f9f6d1518374ef257669c24ebc5ac25d5033828be58"
 
 [[package]]
-name = "prompt"
-version = "0.0.1"
-dependencies = [
- "egui",
- "prompt_derive",
- "rfd",
- "rpassword",
- "serde",
-]
-
-[[package]]
-name = "prompt_derive"
-version = "0.0.1"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.60",
-]
-
-[[package]]
 name = "quick-xml"
 version = "0.31.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3056,6 +3036,26 @@ name = "urlencoding"
 version = "2.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "daf8dba3b7eb870caf1ddeed7bc9d2a049f3cfdfae7cb521b087cc33ae4c49da"
+
+[[package]]
+name = "userprompt"
+version = "0.0.1"
+dependencies = [
+ "egui",
+ "rfd",
+ "rpassword",
+ "serde",
+ "userprompt_derive",
+]
+
+[[package]]
+name = "userprompt_derive"
+version = "0.0.1"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.60",
+]
 
 [[package]]
 name = "version_check"

@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "prompt",
-    "prompt_derive",
+    "userprompt",
+    "userprompt_derive",
     "examples/*"
 ]

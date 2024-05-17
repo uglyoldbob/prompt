@@ -1,5 +1,5 @@
 [package]
-name = "prompt_derive"
+name = "userprompt_derive"
 version = "0.0.1"
 edition = "2021"
 

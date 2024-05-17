@@ -5,4 +5,4 @@ edition = "2021"
 publish = false
 
 [dependencies]
-prompt = { path = "../../prompt" }
+userprompt = { path = "../../userprompt" }

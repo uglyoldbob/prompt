@@ -1,6 +1,6 @@
 //! A module for prompting a user to fill out a struct
 
-pub use prompt_derive::Prompting;
+pub use userprompt_derive::Prompting;
 
 /// This is used to open existing files on the filesystem
 #[derive(Clone, Debug, Default)]
@@ -74,8 +74,7 @@ impl EguiPrompting for FileOpen {
         ui.label(self.pb.display().to_string());
         let n = if let Some(n) = name {
             format!(" {}", n)
-        }
-        else {
+        } else {
             format!("")
         };
         if ui.button(format!("Update{}", n)).clicked() {
@@ -98,8 +97,7 @@ impl EguiPrompting for FileOpen {
         }
         if self.pb.exists() {
             Ok(())
-        }
-        else {
+        } else {
             Err("Selected file does not exist".to_string())
         }
     }
@@ -112,8 +110,7 @@ impl Prompting for FileOpen {
             pb = <std::path::PathBuf as Prompting>::prompt(name)?;
             if !pb.exists() {
                 println!("That does not exist, please try again");
-            }
-            else {
+            } else {
                 break;
             }
         }
@@ -136,8 +133,7 @@ impl EguiPrompting for FileCreate {
         ui.label(self.pb.display().to_string());
         let n = if let Some(n) = name {
             format!(" {}", n)
-        }
-        else {
+        } else {
             format!("")
         };
         if ui.button(format!("Update{}", n)).clicked() {
@@ -157,8 +153,7 @@ impl EguiPrompting for FileCreate {
         }
         if !self.pb.exists() {
             Ok(())
-        }
-        else {
+        } else {
             Err("Selected file does not exist".to_string())
         }
     }
@@ -171,8 +166,7 @@ impl Prompting for FileCreate {
             pb = <std::path::PathBuf as Prompting>::prompt(name)?;
             if pb.exists() {
                 println!("That already exists, please try again");
-            }
-            else {
+            } else {
                 break;
             }
         }
@@ -186,7 +180,7 @@ impl Prompting for FileCreate {
 }
 
 #[cfg(feature = "egui")]
-pub use prompt_derive::EguiPrompting;
+pub use userprompt_derive::EguiPrompting;
 
 #[cfg(feature = "egui")]
 pub use egui;
@@ -238,8 +232,7 @@ impl EguiPrompting for Password2 {
         ui.add(pe);
         if !self.0.is_empty() && self.0 == self.1 {
             Ok(())
-        }
-        else {
+        } else {
             Err(format!("{} password does not match", name.unwrap_or("")))
         }
     }
@@ -394,8 +387,7 @@ impl EguiPrompting for bool {
     fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
         let cname = if let Some(n) = name {
             n.to_string()
-        }
-        else {
+        } else {
             "Item".to_string()
         };
         ui.checkbox(self, cname);
@@ -464,8 +456,7 @@ where
         }
         let n = if let Some(n) = name {
             format!("{} ", n)
-        }
-        else {
+        } else {
             " ".to_string()
         };
         egui::ComboBox::from_label(format!("Select a {}type!", n))
@@ -480,10 +471,7 @@ where
         ui.label(format!("Name for new {}", n));
         ui.text_edit_singleline(&mut self.new_selection);
         if ui.button("Add new entry").clicked() {
-            self.map.insert(
-                self.new_selection.to_owned(),
-                T::default(),
-            );
+            self.map.insert(self.new_selection.to_owned(), T::default());
             self.selection = Some(self.new_selection.to_owned());
         }
         if let Some(s) = &self.selection {
@@ -522,8 +510,7 @@ where
             for elem in v {
                 if let Ok(e) = T::from_str(elem) {
                     newvec.push(e);
-                }
-                else {
+                } else {
                     return Err(format!("Invalid element {}", elem));
                 }
             }
@@ -543,8 +530,7 @@ where
         if ui.checkbox(&mut checked, name.unwrap_or("Item")).changed() {
             if checked {
                 *self = Some(T::default());
-            }
-            else {
+            } else {
                 *self = None;
             }
         }
@@ -564,7 +550,6 @@ where
         self.as_mut().build_gui(ui, name)
     }
 }
-
 
 #[derive(Debug, Clone, Default)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

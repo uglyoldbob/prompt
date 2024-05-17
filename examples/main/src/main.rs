@@ -1,7 +1,7 @@
-use prompt::{Password, Prompting};
+use userprompt::{Password, Prompting};
 
 #[allow(dead_code)]
-#[derive(Debug, prompt::Prompting)]
+#[derive(Debug, userprompt::Prompting)]
 enum TestEnum {
     Option1,
     Option2,
@@ -10,7 +10,7 @@ enum TestEnum {
 }
 
 #[allow(dead_code)]
-#[derive(Debug, prompt::Prompting)]
+#[derive(Debug, userprompt::Prompting)]
 struct TestMe {
     e: TestEnum,
     bob: u8,
@@ -21,7 +21,7 @@ struct TestMe {
 }
 
 #[allow(dead_code)]
-#[derive(Debug, prompt::Prompting)]
+#[derive(Debug, userprompt::Prompting)]
 struct TestMe2 {
     size: u8,
     number: Option<u8>,

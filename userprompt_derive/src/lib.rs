@@ -13,15 +13,16 @@ fn build_enum_variant_builder(v: &syn::Variant) -> proc_macro2::TokenStream {
                     f.ident.as_ref().unwrap().clone(),
                 )]);
                 let ftype = &f.ty;
-                let val =
-                    quote::quote!(<#ftype as core::default::Default>::default());
-                tokens.extend([proc_macro2::TokenTree::Punct(
-                    proc_macro2::Punct::new(':', proc_macro2::Spacing::Alone),
-                )]);
+                let val = quote::quote!(<#ftype as core::default::Default>::default());
+                tokens.extend([proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                    ':',
+                    proc_macro2::Spacing::Alone,
+                ))]);
                 tokens.extend(val);
-                tokens.extend([proc_macro2::TokenTree::Punct(
-                    proc_macro2::Punct::new(',', proc_macro2::Spacing::Alone),
-                )]);
+                tokens.extend([proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                    ',',
+                    proc_macro2::Spacing::Alone,
+                ))]);
             }
             def.extend(tokens);
 
@@ -50,9 +51,10 @@ fn build_enum_variant_builder(v: &syn::Variant) -> proc_macro2::TokenStream {
             for (i, f) in f.unnamed.iter().enumerate() {
                 let ty = &f.ty;
                 tokens.extend(quote::quote!(<#ty as core::default::Default>::default()));
-                tokens.extend([proc_macro2::TokenTree::Punct(
-                        proc_macro2::Punct::new(',', proc_macro2::Spacing::Alone),
-                    )]);
+                tokens.extend([proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                    ',',
+                    proc_macro2::Spacing::Alone,
+                ))]);
             }
             def.extend(tokens);
 
@@ -107,9 +109,10 @@ fn build_enum_variant_to_fields(v: &syn::Variant) -> (proc_macro2::TokenStream, 
                 tokens.extend([proc_macro2::TokenTree::Ident(
                     f.ident.as_ref().unwrap().clone(),
                 )]);
-                tokens.extend([proc_macro2::TokenTree::Punct(
-                    proc_macro2::Punct::new(',', proc_macro2::Spacing::Alone),
-                )]);
+                tokens.extend([proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                    ',',
+                    proc_macro2::Spacing::Alone,
+                ))]);
                 fields.push(f);
             }
             def.extend(tokens);
@@ -150,15 +153,14 @@ fn build_enum_variant_to_fields(v: &syn::Variant) -> (proc_macro2::TokenStream, 
             let mut tokens2: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
             for (i, f) in f.unnamed.iter().enumerate() {
                 let varname = quote::format_ident!("a_{}", i);
-                tokens2.extend([proc_macro2::TokenTree::Ident(
-                    varname,
-                )]);
-                tokens2.extend([proc_macro2::TokenTree::Punct(
-                    proc_macro2::Punct::new(',', proc_macro2::Spacing::Alone),
-                )]);
+                tokens2.extend([proc_macro2::TokenTree::Ident(varname)]);
+                tokens2.extend([proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                    ',',
+                    proc_macro2::Spacing::Alone,
+                ))]);
                 fields.push(f);
             }
-            quote::quote!{#tokens (#tokens2)}
+            quote::quote! {#tokens (#tokens2)}
         }
         syn::Fields::Unit => {
             let mut tokens: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
@@ -193,9 +195,10 @@ fn build_enum_variant_to_string(v: &syn::Variant) -> (proc_macro2::TokenStream, 
                 tokens.extend([proc_macro2::TokenTree::Ident(
                     f.ident.as_ref().unwrap().clone(),
                 )]);
-                tokens.extend([proc_macro2::TokenTree::Punct(
-                    proc_macro2::Punct::new(',', proc_macro2::Spacing::Alone),
-                )]);
+                tokens.extend([proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                    ',',
+                    proc_macro2::Spacing::Alone,
+                ))]);
             }
             def.extend(tokens);
 
@@ -235,14 +238,13 @@ fn build_enum_variant_to_string(v: &syn::Variant) -> (proc_macro2::TokenStream, 
             let mut tokens2: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
             for (i, _f) in f.unnamed.iter().enumerate() {
                 let varname = quote::format_ident!("a_{}", i);
-                tokens2.extend([proc_macro2::TokenTree::Ident(
-                    varname,
-                )]);
-                tokens2.extend([proc_macro2::TokenTree::Punct(
-                    proc_macro2::Punct::new(',', proc_macro2::Spacing::Alone),
-                )]);
+                tokens2.extend([proc_macro2::TokenTree::Ident(varname)]);
+                tokens2.extend([proc_macro2::TokenTree::Punct(proc_macro2::Punct::new(
+                    ',',
+                    proc_macro2::Spacing::Alone,
+                ))]);
             }
-            quote::quote!{#tokens (#tokens2)}
+            quote::quote! {#tokens (#tokens2)}
         }
         syn::Fields::Unit => {
             let mut tokens: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
@@ -290,10 +292,9 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
             let mut match_stuff: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
             for v in &e.variants {
                 let (q, t) = build_enum_variant_to_string(v);
-                match_stuff.extend(
-                    quote::quote! {
-                        #q => #t,
-                    });
+                match_stuff.extend(quote::quote! {
+                    #q => #t,
+                });
             }
 
             let q_start: proc_macro2::TokenStream = quote::quote! {
@@ -330,8 +331,7 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
                                 #varname.build_gui(ui, Some(&subname))?;
                             };
                             option_code.extend(q);
-                        }
-                        else {
+                        } else {
                             let varname = quote::format_ident!("a_{}", i);
                             let text = format!("{}", i);
                             let q: proc_macro2::TokenStream = quote::quote! {
@@ -348,7 +348,7 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
             }
 
             expanded = quote::quote! {
-                impl prompt::EguiPrompting for #sident {
+                impl userprompt::EguiPrompting for #sident {
                     fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
                         #field_stuff
                         combobox.selected_text(val)
@@ -405,7 +405,7 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
                 field_stuff.extend(q);
             }
             expanded = quote::quote! {
-                impl prompt::EguiPrompting for #sident {
+                impl userprompt::EguiPrompting for #sident {
                     fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
                         #field_stuff
                     }
@@ -417,7 +417,6 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
     };
     TokenStream::from(expanded)
 }
-
 
 #[proc_macro_derive(Prompting)]
 pub fn derive_prompting(input: TokenStream) -> TokenStream {
@@ -449,7 +448,7 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
 
             let name = Ident::new(&format!("a"), proc_macro2::Span::call_site());
             let q: proc_macro2::TokenStream = quote::quote! {
-                let #name = <String as prompt::Prompting>::prompt(None)?;
+                let #name = <String as userprompt::Prompting>::prompt(None)?;
             };
             field_stuff.extend(q);
 
@@ -471,8 +470,7 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
                             )]);
                             let ftype = &f.ty;
                             let text = f.ident.as_ref().unwrap().to_string();
-                            let val =
-                                quote::quote!(<#ftype as prompt::Prompting>::prompt(Some(#text))?);
+                            let val = quote::quote!(<#ftype as userprompt::Prompting>::prompt(Some(#text))?);
                             tokens.extend([proc_macro2::TokenTree::Punct(
                                 proc_macro2::Punct::new(':', proc_macro2::Spacing::Alone),
                             )]);
@@ -514,7 +512,7 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
                                 proc_macro2::Literal::usize_unsuffixed(i),
                             )]);
                             let ftype = &f.ty;
-                            let val = quote::quote!(<#ftype as prompt::Prompting>::prompt(Some(&format!("{}", #i)))?);
+                            let val = quote::quote!(<#ftype as userprompt::Prompting>::prompt(Some(&format!("{}", #i)))?);
                             tokens.extend([proc_macro2::TokenTree::Punct(
                                 proc_macro2::Punct::new(':', proc_macro2::Spacing::Alone),
                             )]);
@@ -577,8 +575,8 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
             field_stuff.extend(q_start);
 
             expanded = quote::quote! {
-                impl prompt::Prompting for #sident {
-                    fn prompt(name: Option<&str>) -> Result<Self, prompt::Error> {
+                impl userprompt::Prompting for #sident {
+                    fn prompt(name: Option<&str>) -> Result<Self, userprompt::Error> {
                         loop {
                             #field_stuff
                         }
@@ -605,7 +603,7 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
                         let name = Ident::new(&format!("a_{}", i), proc_macro2::Span::call_site());
                         let text = ident.to_string();
                         let q: proc_macro2::TokenStream = quote::quote! {
-                            let #name = <#ftype as prompt::Prompting>::prompt(Some(#text))?;
+                            let #name = <#ftype as userprompt::Prompting>::prompt(Some(#text))?;
                         };
                         field_stuff.extend(q);
                     }
@@ -631,8 +629,8 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
                 field_stuff.extend(q);
             }
             expanded = quote::quote! {
-                impl prompt::Prompting for #sident {
-                    fn prompt(name: Option<&str>) -> Result<Self, prompt::Error> {
+                impl userprompt::Prompting for #sident {
+                    fn prompt(name: Option<&str>) -> Result<Self, userprompt::Error> {
                         #field_stuff
                     }
                 }
