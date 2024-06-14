@@ -496,25 +496,22 @@ where
 #[cfg(feature = "egui")]
 impl<T> EguiPrompting for Vec<T>
 where
-    T: core::str::FromStr + core::fmt::Display,
+    T: EguiPrompting + std::default::Default,
 {
     fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
         if let Some(n) = name {
             ui.label(n);
         }
-        let s: Vec<String> = self.iter().map(|a| a.to_string()).collect();
-        let mut combined = s.join("\n");
-        if ui.text_edit_multiline(&mut combined).changed() {
-            let v: Vec<&str> = combined.split("\n").collect();
-            let mut newvec: Vec<T> = Vec::new();
-            for elem in v {
-                if let Ok(e) = T::from_str(elem) {
-                    newvec.push(e);
-                } else {
-                    return Err(format!("Invalid element {}", elem));
-                }
-            }
-            *self = newvec;
+        for (i, e) in self.iter_mut().enumerate() {
+            let name2 = if let Some(n) = name {
+                format!("{}/{}", n, i + 1)
+            } else {
+                format!("{}", i + 1)
+            };
+            e.build_gui(ui, Some(&name2))?;
+        }
+        if ui.button("Add another").clicked() {
+            self.push(T::default());
         }
         Ok(())
     }

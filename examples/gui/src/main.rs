@@ -47,13 +47,16 @@ pub struct Test {
     val_f64: f64,
     val_pb: std::path::PathBuf,
     val_pb3: userprompt::FileCreate,
+    val_pb4: Option<userprompt::FileCreate>,
     vec_u8: Vec<u8>,
     optional: Option<String>,
     boxed_string: Box<String>,
     hm: userprompt::SelectedHashMap<String>,
     pw: userprompt::Password,
-    pw2: userprompt::Password2,
     val_pb2: userprompt::FileOpen,
+    val_pb5: Option<userprompt::FileOpen>,
+    complex1: Option<Vec<userprompt::FileOpen>>,
+    pw2: userprompt::Password2,
 }
 
 #[derive(Default)]

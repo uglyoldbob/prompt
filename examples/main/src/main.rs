@@ -21,6 +21,8 @@ struct TestMe {
     asdf: TestMe2,
     pw: Password,
     path: std::path::PathBuf,
+    fo: userprompt::FileOpen,
+    fc: userprompt::FileCreate,
 }
 
 #[allow(dead_code)]
