@@ -459,15 +459,6 @@ where
         } else {
             " ".to_string()
         };
-        egui::ComboBox::from_label(format!("Select a {}type!", n))
-            .selected_text(self.selection.as_ref().unwrap_or(&format!("Selection")))
-            .show_ui(ui, |ui| {
-                for elem in self.map.keys() {
-                    if ui.selectable_label(false, elem).clicked() {
-                        self.selection = Some(elem.to_string());
-                    }
-                }
-            });
         ui.label(format!("Name for new {}", n));
         ui.text_edit_singleline(&mut self.new_selection);
         if ui.button("Add new entry").clicked() {
@@ -489,6 +480,15 @@ where
                 self.selection = None;
             }
         }
+        egui::ComboBox::from_label(format!("Select a {}type!", n))
+            .selected_text(self.selection.as_ref().unwrap_or(&format!("Selection")))
+            .show_ui(ui, |ui| {
+                for elem in self.map.keys() {
+                    if ui.selectable_label(false, elem).clicked() {
+                        self.selection = Some(elem.to_string());
+                    }
+                }
+            });
         Ok(())
     }
 }
@@ -800,7 +800,28 @@ impl Prompting for f64 {
 
 impl Prompting for bool {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        Self::prompt_generic::<Self>(name)
+        use std::io::Write;
+        if let Some(n) = name {
+            print!("{} (yes,no,true,false): ", n);
+            std::io::stdout().flush().unwrap();
+        }
+        loop {
+            let s = Self::prompt_generic::<String>(None);
+            match s {
+                Ok(s) => match s.to_ascii_lowercase().as_str() {
+                    "yes" | "true" => {
+                        return Ok(true);
+                    }
+                    "no" | "false" => {
+                        return Ok(false);
+                    }
+                    _ => {
+                        print!("Invalid input");
+                    }
+                },
+                _ => {}
+            }
+        }
     }
 }
 
@@ -862,34 +883,59 @@ where
     }
 }
 
-impl<T> Prompting for Vec<T>
-where
-    T: core::str::FromStr,
-{
+/// This is used to provide a specific prompt when gathering a vec of items
+struct VecOption<T> {
+    /// The inner item
+    inner: Option<T>,
+}
+
+impl<T> VecOption<T> {
+    /// Construct a new self
+    fn new(t: Option<T>) -> Self {
+        Self { inner: t }
+    }
+}
+
+impl<T: Prompting> Prompting for VecOption<T> {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        loop {
-            let v: String = <String as Prompting>::prompt(name)?;
-            if v.is_empty() {
-                return Ok(Vec::new());
-            } else {
-                let mut vtotal: Vec<T> = Vec::new();
-                let els: Vec<&str> = v.split(',').collect();
-                let mut invalid = false;
-                for el in els.iter() {
-                    let v: Result<T, Error> = el.parse().map_err(|_| Error::ConversionError);
-                    if let Ok(v) = v {
-                        vtotal.push(v);
-                    } else {
-                        println!("Invalid input");
-                        invalid = true;
-                        break;
-                    }
+        println!("Provide an element? (yes/no)]");
+        let v = bool::prompt(None)?;
+        if v {
+            match T::prompt(name) {
+                Ok(t) => {
+                    return Ok(VecOption::new(Some(t)));
                 }
-                if !invalid {
-                    return Ok(vtotal);
+                Err(e) => {
+                    return Err(e);
+                }
+            }
+        } else {
+            Ok(VecOption::new(None))
+        }
+    }
+}
+
+impl<T: Prompting> Prompting for Vec<T> {
+    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+        let mut built = Vec::new();
+        if let Some(name) = name {
+            println!("Enter a list of items for {}", name);
+        }
+        loop {
+            let name2 = if let Some(n) = name {
+                format!("{}/element{}", n, built.len() + 1)
+            } else {
+                format!("element{}", built.len() + 1)
+            };
+            let v: VecOption<T> = <VecOption<T> as Prompting>::prompt(Some(&name2))?;
+            match v.inner {
+                None => break,
+                Some(v) => {
+                    built.push(v);
                 }
             }
         }
+        Ok(built)
     }
 }
 
@@ -899,7 +945,7 @@ where
 {
     fn prompt(name: Option<&str>) -> Result<Self, Error> {
         if let Some(name) = name {
-            println!("[{} is optional, provide? (true/false)]", name);
+            println!("[{} is optional, provide? (yes/no)]", name);
         }
         let v = bool::prompt(name)?;
         if v {

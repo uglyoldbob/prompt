@@ -12,6 +12,9 @@ enum TestEnum {
 #[allow(dead_code)]
 #[derive(Debug, userprompt::Prompting)]
 struct TestMe {
+    vec1: Vec<u8>,
+    vec2: Vec<TestEnum>,
+    vec3: Vec<TestMe2>,
     e: TestEnum,
     bob: u8,
     jim: Option<u8>,
