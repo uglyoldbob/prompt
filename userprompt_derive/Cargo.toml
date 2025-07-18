@@ -1,6 +1,6 @@
 [package]
 name = "userprompt_derive"
-version = "0.1.0"
+version = "0.0.2"
 edition = "2021"
 description = "The derive library for the userprompt crate. Derives prompt traits"
 license = "GPL-3.0"
