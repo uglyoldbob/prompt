@@ -266,6 +266,8 @@ fn build_enum_variant_to_string(v: &syn::Variant) -> (proc_macro2::TokenStream, 
     (q, text2)
 }
 
+/// This macro is used to drive the EguiPrompting trait for custom types.
+/// The macro attribute PromptComment is used to give direction to the user for each field that the user enters.
 #[cfg(feature = "egui")]
 #[proc_macro_derive(EguiPrompting)]
 pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
@@ -418,7 +420,24 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
     TokenStream::from(expanded)
 }
 
-#[proc_macro_derive(Prompting)]
+/// Retrieves the comment attribute from the field
+fn get_comment(field: &syn::Field) -> Option<syn::Expr> {
+    get_comment_from_attrs(&field.attrs)
+}
+
+/// Retrieves the comment attribute from a list of attributes
+fn get_comment_from_attrs(attrs: &Vec<syn::Attribute>) -> Option<syn::Expr> {
+    attrs
+        .iter()
+        .filter(|p| p.path().is_ident("PromptComment"))
+        .take(1)
+        .next()
+        .map(|a| a.meta.require_name_value().unwrap().value.clone())
+}
+
+/// This macro is used to drive the Prompting trait for custom types.
+/// The macro attribute PromptComment is used to give direction to the user for each field that the user enters.
+#[proc_macro_derive(Prompting, attributes(PromptComment))]
 pub fn derive_prompting(input: TokenStream) -> TokenStream {
     let input = syn::parse_macro_input!(input as DeriveInput);
     let sident = input.ident;
@@ -440,15 +459,21 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
 
             for v in &e.variants {
                 let text = v.ident.to_string();
-                let q: proc_macro2::TokenStream = quote::quote! {
-                    println!("\t{}", #text);
+                let a = get_comment_from_attrs(&v.attrs);
+                let q = match a {
+                    Some(a) => quote::quote! {
+                        println!("\t{} - {}", #text, #a);
+                    },
+                    None => quote::quote! {
+                        println!("\t{}", #text);
+                    },
                 };
                 field_stuff.extend(q);
             }
 
             let name = Ident::new(&format!("a"), proc_macro2::Span::call_site());
             let q: proc_macro2::TokenStream = quote::quote! {
-                let #name = <String as userprompt::Prompting>::prompt(None)?;
+                let #name = <String as userprompt::Prompting>::prompt(None, None)?;
             };
             field_stuff.extend(q);
 
@@ -465,12 +490,16 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
                                     proc_macro2::Punct::new(',', proc_macro2::Spacing::Alone),
                                 )]);
                             }
+                            let a = get_comment(f);
                             tokens.extend([proc_macro2::TokenTree::Ident(
                                 f.ident.as_ref().unwrap().clone(),
                             )]);
                             let ftype = &f.ty;
                             let text = f.ident.as_ref().unwrap().to_string();
-                            let val = quote::quote!(<#ftype as userprompt::Prompting>::prompt(Some(#text))?);
+                            let val = match a {
+                                Some(a) => quote::quote!(<#ftype as userprompt::Prompting>::prompt(Some(#text), Some(#a))?),
+                                None => quote::quote!(<#ftype as userprompt::Prompting>::prompt(Some(#text), None)?),
+                            };
                             tokens.extend([proc_macro2::TokenTree::Punct(
                                 proc_macro2::Punct::new(':', proc_macro2::Spacing::Alone),
                             )]);
@@ -511,8 +540,12 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
                             tokens.extend([proc_macro2::TokenTree::Literal(
                                 proc_macro2::Literal::usize_unsuffixed(i),
                             )]);
+                            let a = get_comment(f);
                             let ftype = &f.ty;
-                            let val = quote::quote!(<#ftype as userprompt::Prompting>::prompt(Some(&format!("{}", #i)))?);
+                            let val = match a {
+                                Some(a) => quote::quote!(<#ftype as userprompt::Prompting>::prompt(Some(&format!("{}", #i)), Some(#a))?),
+                                None => quote::quote!(<#ftype as userprompt::Prompting>::prompt(Some(&format!("{}", #i)), None)?),
+                            };
                             tokens.extend([proc_macro2::TokenTree::Punct(
                                 proc_macro2::Punct::new(':', proc_macro2::Spacing::Alone),
                             )]);
@@ -576,7 +609,7 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
 
             expanded = quote::quote! {
                 impl userprompt::Prompting for #sident {
-                    fn prompt(name: Option<&str>) -> Result<Self, userprompt::Error> {
+                    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, userprompt::Error> {
                         loop {
                             #field_stuff
                         }
@@ -602,8 +635,18 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
                     if let Some(ident) = &n.ident {
                         let name = Ident::new(&format!("a_{}", i), proc_macro2::Span::call_site());
                         let text = ident.to_string();
-                        let q: proc_macro2::TokenStream = quote::quote! {
-                            let #name = <#ftype as userprompt::Prompting>::prompt(Some(#text))?;
+                        let a = get_comment_from_attrs(&n.attrs);
+                        let q: proc_macro2::TokenStream = match a {
+                            Some(a) => {
+                                quote::quote! {
+                                    let #name = <#ftype as userprompt::Prompting>::prompt(Some(#text), Some(#a))?;
+                                }
+                            }
+                            None => {
+                                quote::quote! {
+                                    let #name = <#ftype as userprompt::Prompting>::prompt(Some(#text), None)?;
+                                }
+                            }
                         };
                         field_stuff.extend(q);
                     }
@@ -630,7 +673,7 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
             }
             expanded = quote::quote! {
                 impl userprompt::Prompting for #sident {
-                    fn prompt(name: Option<&str>) -> Result<Self, userprompt::Error> {
+                    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, userprompt::Error> {
                         #field_stuff
                     }
                 }

@@ -104,10 +104,10 @@ impl EguiPrompting for FileOpen {
 }
 
 impl Prompting for FileOpen {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
         let mut pb;
         loop {
-            pb = <std::path::PathBuf as Prompting>::prompt(name)?;
+            pb = <std::path::PathBuf as Prompting>::prompt(name, comment)?;
             if !pb.exists() {
                 println!("That does not exist, please try again");
             } else {
@@ -160,10 +160,10 @@ impl EguiPrompting for FileCreate {
 }
 
 impl Prompting for FileCreate {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
         let mut pb;
         loop {
-            pb = <std::path::PathBuf as Prompting>::prompt(name)?;
+            pb = <std::path::PathBuf as Prompting>::prompt(name, comment)?;
             if pb.exists() {
                 println!("That already exists, please try again");
             } else {
@@ -579,8 +579,11 @@ impl std::ops::DerefMut for Password {
 }
 
 impl Prompting for Password {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
         use std::io::Write;
+        if let Some(comment) = comment {
+            println!("{}", comment);
+        }
         if let Some(n) = name {
             print!("{}: ", n);
             std::io::stdout().flush().unwrap();
@@ -628,7 +631,7 @@ impl std::ops::DerefMut for Password2 {
 }
 
 impl Prompting for Password2 {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
         use std::io::Write;
         let mut buffer;
         loop {
@@ -686,14 +689,18 @@ pub trait Prompting: Sized {
     /// prompt for input of the specified type.
     /// # Arguments
     /// * name - The optional name to display for the type
-    fn prompt(name: Option<&str>) -> Result<Self, Error>;
+    /// * comment - The optional comment to show to the user to explain the field being entered
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error>;
 
-    fn prompt_generic<T>(name: Option<&str>) -> Result<T, Error>
+    fn prompt_generic<T>(name: Option<&str>, comment: Option<&str>) -> Result<T, Error>
     where
         T: Prompting + core::str::FromStr,
     {
+        if let Some(comment) = comment {
+            println!("{}", comment);
+        }
         loop {
-            let v: String = <String as Prompting>::prompt(name)?;
+            let v: String = <String as Prompting>::prompt(name, comment)?;
             let v2: Result<T, Error> = v.parse().map_err(|_| Error::ConversionError);
             if v2.is_ok() {
                 return v2;
@@ -704,7 +711,7 @@ pub trait Prompting: Sized {
 }
 
 impl Prompting for String {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
         use std::io::Write;
         let mut buffer = String::new();
         if let Some(n) = name {
@@ -730,80 +737,83 @@ impl Prompting for String {
 }
 
 impl Prompting for u8 {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        Self::prompt_generic::<Self>(name)
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
+        Self::prompt_generic::<Self>(name, comment)
     }
 }
 
 impl Prompting for i8 {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        Self::prompt_generic::<Self>(name)
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
+        Self::prompt_generic::<Self>(name, comment)
     }
 }
 
 impl Prompting for u16 {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        Self::prompt_generic::<Self>(name)
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
+        Self::prompt_generic::<Self>(name, comment)
     }
 }
 
 impl Prompting for i16 {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        Self::prompt_generic::<Self>(name)
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
+        Self::prompt_generic::<Self>(name, comment)
     }
 }
 
 impl Prompting for u32 {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        Self::prompt_generic::<Self>(name)
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
+        Self::prompt_generic::<Self>(name, comment)
     }
 }
 
 impl Prompting for i32 {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        Self::prompt_generic::<Self>(name)
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
+        Self::prompt_generic::<Self>(name, comment)
     }
 }
 
 impl Prompting for u64 {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        Self::prompt_generic::<Self>(name)
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
+        Self::prompt_generic::<Self>(name, comment)
     }
 }
 
 impl Prompting for i64 {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        Self::prompt_generic::<Self>(name)
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
+        Self::prompt_generic::<Self>(name, comment)
     }
 }
 
 impl Prompting for usize {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        Self::prompt_generic::<Self>(name)
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
+        Self::prompt_generic::<Self>(name, comment)
     }
 }
 
 impl Prompting for f32 {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        Self::prompt_generic::<Self>(name)
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
+        Self::prompt_generic::<Self>(name, comment)
     }
 }
 
 impl Prompting for f64 {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        Self::prompt_generic::<Self>(name)
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
+        Self::prompt_generic::<Self>(name, comment)
     }
 }
 
 impl Prompting for bool {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
         use std::io::Write;
+        if let Some(comment) = comment {
+            println!("{}", comment);
+        }
         if let Some(n) = name {
             print!("{} (yes,no,true,false): ", n);
             std::io::stdout().flush().unwrap();
         }
         loop {
-            let s = Self::prompt_generic::<String>(None);
+            let s = Self::prompt_generic::<String>(None, None);
             match s {
                 Ok(s) => match s.to_ascii_lowercase().as_str() {
                     "yes" | "true" => {
@@ -823,8 +833,8 @@ impl Prompting for bool {
 }
 
 impl Prompting for std::path::PathBuf {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        Self::prompt_generic::<Self>(name)
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
+        Self::prompt_generic::<Self>(name, comment)
     }
 }
 
@@ -832,8 +842,11 @@ impl<T> Prompting for SelectedHashMap<T>
 where
     T: Prompting,
 {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
         use std::io::Write;
+        if let Some(comment) = comment {
+            println!("{}", comment);
+        }
         if let Some(n) = name {
             print!("{}: ", n);
             std::io::stdout().flush().unwrap();
@@ -842,12 +855,12 @@ where
         loop {
             print!("Enter key name (blank to end):");
             std::io::stdout().flush().unwrap();
-            let key = String::prompt(None).unwrap();
+            let key = String::prompt(None, None).unwrap();
             if key.is_empty() {
                 println!("Done");
                 break;
             }
-            let t = T::prompt(None).unwrap();
+            let t = T::prompt(None, None).unwrap();
             hm.map.insert(key, t);
         }
         Ok(hm)
@@ -858,8 +871,11 @@ impl<T> Prompting for std::collections::HashMap<String, T>
 where
     T: Prompting,
 {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
         use std::io::Write;
+        if let Some(comment) = comment {
+            println!("{}", comment);
+        }
         if let Some(n) = name {
             print!("{}: ", n);
             std::io::stdout().flush().unwrap();
@@ -868,12 +884,12 @@ where
         loop {
             print!("Enter key name (blank to end):");
             std::io::stdout().flush().unwrap();
-            let key = String::prompt(None).unwrap();
+            let key = String::prompt(None, None).unwrap();
             if key.is_empty() {
                 println!("Done");
                 break;
             }
-            let t = T::prompt(None).unwrap();
+            let t = T::prompt(None, None).unwrap();
             hm.insert(key, t);
         }
         Ok(hm)
@@ -894,11 +910,11 @@ impl<T> VecOption<T> {
 }
 
 impl<T: Prompting> Prompting for VecOption<T> {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
         println!("Provide an element? (yes/no)]");
-        let v = bool::prompt(None)?;
+        let v = bool::prompt(None, None)?;
         if v {
-            match T::prompt(name) {
+            match T::prompt(name, comment) {
                 Ok(t) => {
                     return Ok(VecOption::new(Some(t)));
                 }
@@ -913,8 +929,11 @@ impl<T: Prompting> Prompting for VecOption<T> {
 }
 
 impl<T: Prompting> Prompting for Vec<T> {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
         let mut built = Vec::new();
+        if let Some(comment) = comment {
+            println!("{}", comment);
+        }
         if let Some(name) = name {
             println!("Enter a list of items for {}", name);
         }
@@ -924,7 +943,7 @@ impl<T: Prompting> Prompting for Vec<T> {
             } else {
                 format!("element{}", built.len() + 1)
             };
-            let v: VecOption<T> = <VecOption<T> as Prompting>::prompt(Some(&name2))?;
+            let v: VecOption<T> = <VecOption<T> as Prompting>::prompt(Some(&name2), None)?;
             match v.inner {
                 None => break,
                 Some(v) => {
@@ -940,13 +959,13 @@ impl<T> Prompting for Option<T>
 where
     T: Prompting,
 {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
         if let Some(name) = name {
             println!("[{} is optional, provide? (yes/no)]", name);
         }
-        let v = bool::prompt(name)?;
+        let v = bool::prompt(name, None)?;
         if v {
-            match T::prompt(name) {
+            match T::prompt(name, comment) {
                 Ok(t) => {
                     return Ok(Some(t));
                 }
@@ -964,8 +983,8 @@ impl<T> Prompting for Box<T>
 where
     T: Prompting,
 {
-    fn prompt(name: Option<&str>) -> Result<Self, Error> {
-        let a: T = T::prompt(name)?;
+    fn prompt(name: Option<&str>, comment: Option<&str>) -> Result<Self, Error> {
+        let a: T = T::prompt(name, comment)?;
         Ok(Box::new(a))
     }
 }
