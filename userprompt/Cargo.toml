@@ -10,7 +10,7 @@ repository = "https://github.com/uglyoldbob/prompt"
 
 [dependencies]
 egui = {version = "0.27.2", optional = true }
-userprompt_derive = { version = "0.0.2", path = "../userprompt_derive" }
+userprompt_derive = { version = "0.0.3", path = "../userprompt_derive" }
 rfd = { version = "0.14.1", optional = true }
 rpassword = "7.3.1"
 serde = {version = "1.0.197", features = ["serde_derive"], optional = true }
