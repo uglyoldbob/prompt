@@ -331,11 +331,13 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
                 combo_stuff.extend(q);
             }
 
-            let mut option_prompt: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+            let mut option_prompt = proc_macro2::TokenStream::new();
+            let mut checks = proc_macro2::TokenStream::new();
             for v in &e.variants {
                 let (q, f) = build_enum_variant_to_fields(v);
                 let a = get_comment_from_attrs(&v.attrs);
                 let mut option_code: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+                let mut check_item = proc_macro2::TokenStream::new();
                 if let Some(a) = a {
                     let q = quote::quote! {
                         ui.label(#a);
@@ -361,6 +363,12 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
                                 },
                             };
                             option_code.extend(q);
+
+                            let q2 = quote::quote! {
+                                let subname = format!("{}/{}", name.unwrap_or(""), #text);
+                                #varname.check(Some(&subname))?;
+                            };
+                            check_item.extend(q2);
                         } else {
                             let varname = quote::format_ident!("a_{}", i);
                             let text = format!("{}", i);
@@ -377,10 +385,19 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
                                 },
                             };
                             option_code.extend(q);
+
+                            let q2 = quote::quote! {
+                                let subname = format!("{}/{}", name.unwrap_or(""), #text);
+                                #varname.check(Some(&subname))?;
+                            };
+                            check_item.extend(q2);
                         }
                     }
                     option_prompt.extend(quote::quote! {
                         #q => { #option_code },
+                    });
+                    checks.extend(quote::quote! {
+                        #q => { #check_item },
                     });
                 }
             }
@@ -395,6 +412,14 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
                             #option_prompt
                             _ => {}
                         }
+                        self.check(name)
+                    }
+
+                    fn check(&self, name: Option<&str>) -> Result<(), String> {
+                        match self {
+                            #checks
+                            _ => {}
+                        }
                         Ok(())
                     }
                 }
@@ -404,6 +429,7 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
         syn::Data::Struct(s) => {
             let fields = &s.fields;
             let mut field_stuff: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+            let mut checks = proc_macro2::TokenStream::new();
 
             let q: proc_macro2::TokenStream = quote::quote! {
                 if let Some(name) = name {
@@ -431,6 +457,11 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
                             },
                         };
                         field_stuff.extend(q);
+                        let q2 = quote::quote! {
+                            let subname = format!("{}/{}", name.unwrap_or(""), #text);
+                            self.#varname.check(Some(&subname))?;
+                        };
+                        checks.extend(q2);
                     }
                 }
 
@@ -456,7 +487,12 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
                     fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>, comment: Option<&str>) -> Result<(), String> {
                         #field_stuff
                     }
-                }
+
+                    fn check(&self, name: Option<&str>) -> Result<(), String> {
+                        #checks
+                        Ok(())
+                    }
+                }                
             }
             .into();
         }

@@ -103,6 +103,10 @@ impl EguiPrompting for FileOpen {
                 self.pb = path;
             }
         }
+        self.check(name)
+    }
+
+    fn check(&self, _name: Option<&str>) -> Result<(), String> {
         if self.pb.exists() {
             Ok(())
         } else {
@@ -167,10 +171,14 @@ impl EguiPrompting for FileCreate {
                 self.pb = path;
             }
         }
+        self.check(name)
+    }
+
+    fn check(&self, _name: Option<&str>,) -> Result<(), String> {
         if !self.pb.exists() {
             Ok(())
         } else {
-            Err("Selected file does not exist".to_string())
+            Err(format!("Selected file {} already exists", self.pb.display()))
         }
     }
 }
@@ -210,6 +218,9 @@ pub trait EguiPrompting: Sized {
         name: Option<&str>,
         comment: Option<&str>,
     ) -> Result<(), String>;
+
+    /// Perform any additional checks required in order to check the object for validness
+    fn check(&self, name: Option<&str>,) -> Result<(), String>;
 }
 
 #[cfg(feature = "egui")]
@@ -227,6 +238,10 @@ impl EguiPrompting for String {
             ui.label(n);
         }
         ui.text_edit_singleline(self);
+        Ok(())
+    }
+
+    fn check(&self, _name: Option<&str>) -> Result<(), String> {
         Ok(())
     }
 }
@@ -248,6 +263,10 @@ impl EguiPrompting for Password {
         let p: &mut String = &mut self.0;
         let pe = egui::TextEdit::singleline(p).password(true);
         ui.add(pe);
+        self.check(name)
+    }
+
+    fn check(&self, name: Option<&str>) -> Result<(), String> {
         if self.0.is_empty() {
             return Err(format!("{} password is blank", name.unwrap_or("")));
         }
@@ -275,6 +294,10 @@ impl EguiPrompting for Password2 {
         let p: &mut String = &mut self.1;
         let pe = egui::TextEdit::singleline(p).password(true);
         ui.add(pe);
+        self.check(name)
+    }
+
+    fn check(&self, name: Option<&str>) -> Result<(), String> {
         if !self.0.is_empty() && self.0 == self.1 {
             Ok(())
         } else {
@@ -298,6 +321,10 @@ impl EguiPrompting for u8 {
         }
         Ok(())
     }
+
+    fn check(&self, _name: Option<&str>) -> Result<(), String> {
+        Ok(())
+    }
 }
 
 #[cfg(feature = "egui")]
@@ -313,6 +340,10 @@ impl EguiPrompting for i8 {
         if let Ok(val) = s.parse::<Self>() {
             *self = val;
         }
+        Ok(())
+    }
+
+    fn check(&self, _name: Option<&str>) -> Result<(), String> {
         Ok(())
     }
 }
@@ -332,6 +363,10 @@ impl EguiPrompting for u16 {
         }
         Ok(())
     }
+
+    fn check(&self, _name: Option<&str>) -> Result<(), String> {
+        Ok(())
+    }
 }
 
 #[cfg(feature = "egui")]
@@ -347,6 +382,10 @@ impl EguiPrompting for i16 {
         if let Ok(val) = s.parse::<Self>() {
             *self = val;
         }
+        Ok(())
+    }
+    
+    fn check(&self, _name: Option<&str>) -> Result<(), String> {
         Ok(())
     }
 }
@@ -366,6 +405,10 @@ impl EguiPrompting for u32 {
         }
         Ok(())
     }
+    
+    fn check(&self, _name: Option<&str>) -> Result<(), String> {
+        Ok(())
+    }
 }
 
 #[cfg(feature = "egui")]
@@ -381,6 +424,10 @@ impl EguiPrompting for i32 {
         if let Ok(val) = s.parse::<Self>() {
             *self = val;
         }
+        Ok(())
+    }
+    
+    fn check(&self, _name: Option<&str>) -> Result<(), String> {
         Ok(())
     }
 }
@@ -400,6 +447,10 @@ impl EguiPrompting for u64 {
         }
         Ok(())
     }
+    
+    fn check(&self, _name: Option<&str>) -> Result<(), String> {
+        Ok(())
+    }
 }
 
 #[cfg(feature = "egui")]
@@ -415,6 +466,10 @@ impl EguiPrompting for i64 {
         if let Ok(val) = s.parse::<Self>() {
             *self = val;
         }
+        Ok(())
+    }
+    
+    fn check(&self, _name: Option<&str>) -> Result<(), String> {
         Ok(())
     }
 }
@@ -434,6 +489,10 @@ impl EguiPrompting for usize {
         }
         Ok(())
     }
+    
+    fn check(&self, _name: Option<&str>) -> Result<(), String> {
+        Ok(())
+    }
 }
 
 #[cfg(feature = "egui")]
@@ -449,6 +508,10 @@ impl EguiPrompting for isize {
         if let Ok(val) = s.parse::<Self>() {
             *self = val;
         }
+        Ok(())
+    }
+    
+    fn check(&self, _name: Option<&str>) -> Result<(), String> {
         Ok(())
     }
 }
@@ -468,6 +531,10 @@ impl EguiPrompting for f32 {
         }
         Ok(())
     }
+    
+    fn check(&self, _name: Option<&str>) -> Result<(), String> {
+        Ok(())
+    }
 }
 
 #[cfg(feature = "egui")]
@@ -483,6 +550,10 @@ impl EguiPrompting for f64 {
         if let Ok(val) = s.parse::<Self>() {
             *self = val;
         }
+        Ok(())
+    }
+    
+    fn check(&self, _name: Option<&str>) -> Result<(), String> {
         Ok(())
     }
 }
@@ -506,6 +577,10 @@ impl EguiPrompting for bool {
         ui.checkbox(self, cname);
         Ok(())
     }
+    
+    fn check(&self, _name: Option<&str>) -> Result<(), String> {
+        Ok(())
+    }
 }
 
 #[cfg(feature = "egui")]
@@ -519,6 +594,10 @@ impl EguiPrompting for std::path::PathBuf {
         let mut s = self.display().to_string();
         s.build_gui(ui, name, comment)?;
         *self = s.parse::<Self>().unwrap();
+        Ok(())
+    }
+    
+    fn check(&self, _name: Option<&str>) -> Result<(), String> {
         Ok(())
     }
 }
@@ -606,12 +685,19 @@ where
                     "item".to_string()
                 };
                 let cname = format!("Entry {} for {}", s, tname);
-                e.build_gui(ui, Some(&cname), None)?;
+                let _ = e.build_gui(ui, Some(&cname), None);
             }
             if ui.button("Delete this entry").clicked() {
                 self.map.remove(s);
                 self.selection = None;
             }
+        }
+        self.check(name)
+    }
+
+    fn check(&self, name: Option<&str>,) -> Result<(), String> {
+        for a in &self.map {
+            a.1.check(name)?;
         }
         Ok(())
     }
@@ -640,10 +726,17 @@ where
             } else {
                 format!("{}", i + 1)
             };
-            e.build_gui(ui, Some(&name2), None)?;
+            let _ = e.build_gui(ui, Some(&name2), None);
         }
         if ui.button("Add another").clicked() {
             self.push(T::default());
+        }
+        Ok(())
+    }
+
+    fn check(&self, name: Option<&str>,) -> Result<(), String> {
+        for i in self {
+            i.check(name)?;
         }
         Ok(())
     }
@@ -676,6 +769,10 @@ where
         }
         Ok(())
     }
+
+    fn check(&self, _name: Option<&str>,) -> Result<(), String> {
+        Ok(())
+    }
 }
 
 #[cfg(feature = "egui")]
@@ -690,6 +787,10 @@ where
         comment: Option<&str>,
     ) -> Result<(), String> {
         self.as_mut().build_gui(ui, name, comment)
+    }
+
+    fn check(&self, _name: Option<&str>,) -> Result<(), String> {
+        Ok(())
     }
 }
 
