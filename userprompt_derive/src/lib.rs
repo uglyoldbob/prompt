@@ -333,10 +333,12 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
                                 Some(a) => quote::quote! {
                                     let subname = format!("{}/{}", name.unwrap_or(""), #text);
                                     #varname.build_gui(ui, Some(&subname), Some(#a))?;
+                                    ui.separator();
                                 },
                                 None => quote::quote! {
                                     let subname = format!("{}/{}", name.unwrap_or(""), #text);
                                     #varname.build_gui(ui, Some(&subname), None)?;
+                                    ui.separator();
                                 },
                             };
                             option_code.extend(q);
@@ -347,10 +349,12 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
                                 Some(a) => quote::quote! {
                                     let subname = format!("{}/{}", name.unwrap_or(""), #text);
                                     #varname.build_gui(ui, Some(&subname), Some(#a))?;
+                                    ui.separator();
                                 },
                                 None => quote::quote! {
                                     let subname = format!("{}/{}", name.unwrap_or(""), #text);
                                     #varname.build_gui(ui, Some(&subname), None)?;
+                                    ui.separator();
                                 },
                             };
                             option_code.extend(q);
@@ -399,10 +403,12 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
                             Some(a) => quote::quote! {
                                 let subname = format!("{}/{}", name.unwrap_or(""), #text);
                                 self.#varname.build_gui(ui, Some(&subname), Some(#a))?;
+                                ui.separator();
                             },
                             None => quote::quote! {
                                 let subname = format!("{}/{}", name.unwrap_or(""), #text);
                                 self.#varname.build_gui(ui, Some(&subname), None)?;
+                                ui.separator();
                             },
                         };
                         field_stuff.extend(q);
