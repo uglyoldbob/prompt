@@ -35,7 +35,21 @@ pub enum TestEnum {
 }
 
 #[derive(Default, EguiPrompting)]
+pub struct Test2 {
+    #[PromptComment = "Some number"]
+    num: u8,
+    #[PromptComment = "another number"]
+    num2: u16,
+}
+
+#[derive(Default, EguiPrompting)]
 pub struct Test {
+    #[PromptComment = "map of strings"]
+    hm: userprompt::SelectedHashMap<String>,
+    #[PromptComment = "map of things"]
+    hm2: userprompt::SelectedHashMap<TestEnum>,
+    #[PromptComment = "map of stuff"]
+    hm3: userprompt::SelectedHashMap<Test2>,
     #[PromptComment = "Should we do the thing?"]
     booltest: bool,
     #[PromptComment = "What should the answer be?"]
@@ -78,8 +92,6 @@ pub struct Test {
     optional: Option<String>,
     #[PromptComment = "Boxed string"]
     boxed_string: Box<String>,
-    #[PromptComment = "map of strings"]
-    hm: userprompt::SelectedHashMap<String>,
     #[PromptComment = "The password to launch nuclear missiles"]
     pw: userprompt::Password,
     #[PromptComment = "An existing file to process"]

@@ -337,10 +337,9 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
                 let a = get_comment_from_attrs(&v.attrs);
                 let mut option_code: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
                 if let Some(a) = a {
-                    let q = 
-                        quote::quote! {
-                            ui.label(#a);
-                        };
+                    let q = quote::quote! {
+                        ui.label(#a);
+                    };
                     option_code.extend(q);
                 }
                 if !f.is_empty() {

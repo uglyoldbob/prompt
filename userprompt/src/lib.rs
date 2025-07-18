@@ -589,6 +589,15 @@ where
             self.map.insert(self.new_selection.to_owned(), T::default());
             self.selection = Some(self.new_selection.to_owned());
         }
+        egui::ComboBox::from_label(format!("Select a {}entry!", n))
+            .selected_text(self.selection.as_ref().unwrap_or(&format!("Selection")))
+            .show_ui(ui, |ui| {
+                for elem in self.map.keys() {
+                    if ui.selectable_label(false, elem).clicked() {
+                        self.selection = Some(elem.to_string());
+                    }
+                }
+            });
         if let Some(s) = &self.selection {
             if let Some(e) = self.map.get_mut(s) {
                 let tname = if let Some(n) = name {
@@ -604,15 +613,6 @@ where
                 self.selection = None;
             }
         }
-        egui::ComboBox::from_label(format!("Select a {}type!", n))
-            .selected_text(self.selection.as_ref().unwrap_or(&format!("Selection")))
-            .show_ui(ui, |ui| {
-                for elem in self.map.keys() {
-                    if ui.selectable_label(false, elem).clicked() {
-                        self.selection = Some(elem.to_string());
-                    }
-                }
-            });
         Ok(())
     }
 }
