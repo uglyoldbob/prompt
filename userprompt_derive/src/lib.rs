@@ -291,6 +291,18 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
             };
             field_stuff.extend(q);
 
+            let mut user_info: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+            for v in &e.variants {
+                let a = get_comment_from_attrs(&v.attrs);
+                if let Some(a) = a {
+                    let (_q, t) = build_enum_variant_to_string(v);
+                    user_info.extend(quote::quote! {
+                        ui.label(format!("{} - {}", #t, #a));
+                    });
+                }
+            }
+            field_stuff.extend(user_info);
+
             let mut match_stuff: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
             for v in &e.variants {
                 let (q, t) = build_enum_variant_to_string(v);
@@ -322,7 +334,15 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
             let mut option_prompt: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
             for v in &e.variants {
                 let (q, f) = build_enum_variant_to_fields(v);
+                let a = get_comment_from_attrs(&v.attrs);
                 let mut option_code: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
+                if let Some(a) = a {
+                    let q = 
+                        quote::quote! {
+                            ui.label(#a);
+                        };
+                    option_code.extend(q);
+                }
                 if !f.is_empty() {
                     for (i, f) in f.iter().enumerate() {
                         let a = get_comment(f);
