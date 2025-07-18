@@ -269,7 +269,7 @@ fn build_enum_variant_to_string(v: &syn::Variant) -> (proc_macro2::TokenStream, 
 /// This macro is used to drive the EguiPrompting trait for custom types.
 /// The macro attribute PromptComment is used to give direction to the user for each field that the user enters.
 #[cfg(feature = "egui")]
-#[proc_macro_derive(EguiPrompting)]
+#[proc_macro_derive(EguiPrompting, attributes(PromptComment))]
 pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
     use std::any::Any;
 
@@ -325,20 +325,33 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
                 let mut option_code: proc_macro2::TokenStream = proc_macro2::TokenStream::new();
                 if !f.is_empty() {
                     for (i, f) in f.iter().enumerate() {
+                        let a = get_comment(f);
                         if let Some(ident) = &f.ident {
                             let varname = quote::format_ident!("{}", ident);
                             let text = ident.to_string();
-                            let q: proc_macro2::TokenStream = quote::quote! {
-                                let subname = format!("{}/{}", name.unwrap_or(""), #text);
-                                #varname.build_gui(ui, Some(&subname))?;
+                            let q = match a {
+                                Some(a) => quote::quote! {
+                                    let subname = format!("{}/{}", name.unwrap_or(""), #text);
+                                    #varname.build_gui(ui, Some(&subname), Some(#a))?;
+                                },
+                                None => quote::quote! {
+                                    let subname = format!("{}/{}", name.unwrap_or(""), #text);
+                                    #varname.build_gui(ui, Some(&subname), None)?;
+                                },
                             };
                             option_code.extend(q);
                         } else {
                             let varname = quote::format_ident!("a_{}", i);
                             let text = format!("{}", i);
-                            let q: proc_macro2::TokenStream = quote::quote! {
-                                let subname = format!("{}/{}", name.unwrap_or(""), #text);
-                                #varname.build_gui(ui, Some(&subname))?;
+                            let q = match a {
+                                Some(a) => quote::quote! {
+                                    let subname = format!("{}/{}", name.unwrap_or(""), #text);
+                                    #varname.build_gui(ui, Some(&subname), Some(#a))?;
+                                },
+                                None => quote::quote! {
+                                    let subname = format!("{}/{}", name.unwrap_or(""), #text);
+                                    #varname.build_gui(ui, Some(&subname), None)?;
+                                },
                             };
                             option_code.extend(q);
                         }
@@ -351,7 +364,7 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
 
             expanded = quote::quote! {
                 impl userprompt::EguiPrompting for #sident {
-                    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+                    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>, comment: Option<&str>) -> Result<(), String> {
                         #field_stuff
                         combobox.selected_text(val)
                             .show_ui(ui, |ui| { #combo_stuff });
@@ -378,12 +391,19 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
 
             if let syn::Fields::Named(n) = fields {
                 for n in n.named.iter() {
+                    let a = get_comment(n);
                     if let Some(ident) = &n.ident {
                         let text = ident.to_string();
                         let varname = quote::format_ident!("{}", ident);
-                        let q: proc_macro2::TokenStream = quote::quote! {
-                            let subname = format!("{}/{}", name.unwrap_or(""), #text);
-                            self.#varname.build_gui(ui, Some(&subname))?;
+                        let q = match a {
+                            Some(a) => quote::quote! {
+                                let subname = format!("{}/{}", name.unwrap_or(""), #text);
+                                self.#varname.build_gui(ui, Some(&subname), Some(#a))?;
+                            },
+                            None => quote::quote! {
+                                let subname = format!("{}/{}", name.unwrap_or(""), #text);
+                                self.#varname.build_gui(ui, Some(&subname), None)?;
+                            },
                         };
                         field_stuff.extend(q);
                     }
@@ -408,7 +428,7 @@ pub fn derive_egui_prompting(input: TokenStream) -> TokenStream {
             }
             expanded = quote::quote! {
                 impl userprompt::EguiPrompting for #sident {
-                    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+                    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>, comment: Option<&str>) -> Result<(), String> {
                         #field_stuff
                     }
                 }
@@ -497,8 +517,12 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
                             let ftype = &f.ty;
                             let text = f.ident.as_ref().unwrap().to_string();
                             let val = match a {
-                                Some(a) => quote::quote!(<#ftype as userprompt::Prompting>::prompt(Some(#text), Some(#a))?),
-                                None => quote::quote!(<#ftype as userprompt::Prompting>::prompt(Some(#text), None)?),
+                                Some(a) => {
+                                    quote::quote!(<#ftype as userprompt::Prompting>::prompt(Some(#text), Some(#a))?)
+                                }
+                                None => {
+                                    quote::quote!(<#ftype as userprompt::Prompting>::prompt(Some(#text), None)?)
+                                }
                             };
                             tokens.extend([proc_macro2::TokenTree::Punct(
                                 proc_macro2::Punct::new(':', proc_macro2::Spacing::Alone),
@@ -543,8 +567,12 @@ pub fn derive_prompting(input: TokenStream) -> TokenStream {
                             let a = get_comment(f);
                             let ftype = &f.ty;
                             let val = match a {
-                                Some(a) => quote::quote!(<#ftype as userprompt::Prompting>::prompt(Some(&format!("{}", #i)), Some(#a))?),
-                                None => quote::quote!(<#ftype as userprompt::Prompting>::prompt(Some(&format!("{}", #i)), None)?),
+                                Some(a) => {
+                                    quote::quote!(<#ftype as userprompt::Prompting>::prompt(Some(&format!("{}", #i)), Some(#a))?)
+                                }
+                                None => {
+                                    quote::quote!(<#ftype as userprompt::Prompting>::prompt(Some(&format!("{}", #i)), None)?)
+                                }
                             };
                             tokens.extend([proc_macro2::TokenTree::Punct(
                                 proc_macro2::Punct::new(':', proc_macro2::Spacing::Alone),

@@ -67,7 +67,15 @@ impl std::ops::DerefMut for FileCreate {
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for FileOpen {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
+        if let Some(comment) = comment {
+            ui.label(comment);
+        }
         if let Some(n) = name {
             ui.label(n);
         }
@@ -126,7 +134,15 @@ impl Prompting for FileOpen {
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for FileCreate {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
+        if let Some(comment) = comment {
+            ui.label(comment);
+        }
         if let Some(n) = name {
             ui.label(n);
         }
@@ -188,12 +204,25 @@ pub use egui;
 #[cfg(feature = "egui")]
 /// The trait involved in building a input form for egui
 pub trait EguiPrompting: Sized {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String>;
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String>;
 }
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for String {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
+        if let Some(comment) = comment {
+            ui.label(comment);
+        }
         if let Some(n) = name {
             ui.label(n);
         }
@@ -204,7 +233,15 @@ impl EguiPrompting for String {
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for Password {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
+        if let Some(comment) = comment {
+            ui.label(comment);
+        }
         if let Some(n) = name {
             ui.label(n);
         }
@@ -220,7 +257,15 @@ impl EguiPrompting for Password {
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for Password2 {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
+        if let Some(comment) = comment {
+            ui.label(comment);
+        }
         if let Some(n) = name {
             ui.label(n);
         }
@@ -240,9 +285,14 @@ impl EguiPrompting for Password2 {
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for u8 {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
         let mut s = self.to_string();
-        s.build_gui(ui, name)?;
+        s.build_gui(ui, name, comment)?;
         if let Ok(val) = s.parse::<Self>() {
             *self = val;
         }
@@ -252,9 +302,14 @@ impl EguiPrompting for u8 {
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for i8 {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
         let mut s = self.to_string();
-        s.build_gui(ui, name)?;
+        s.build_gui(ui, name, comment)?;
         if let Ok(val) = s.parse::<Self>() {
             *self = val;
         }
@@ -264,9 +319,14 @@ impl EguiPrompting for i8 {
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for u16 {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
         let mut s = self.to_string();
-        s.build_gui(ui, name)?;
+        s.build_gui(ui, name, comment)?;
         if let Ok(val) = s.parse::<Self>() {
             *self = val;
         }
@@ -276,9 +336,14 @@ impl EguiPrompting for u16 {
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for i16 {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
         let mut s = self.to_string();
-        s.build_gui(ui, name)?;
+        s.build_gui(ui, name, comment)?;
         if let Ok(val) = s.parse::<Self>() {
             *self = val;
         }
@@ -288,9 +353,14 @@ impl EguiPrompting for i16 {
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for u32 {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
         let mut s = self.to_string();
-        s.build_gui(ui, name)?;
+        s.build_gui(ui, name, comment)?;
         if let Ok(val) = s.parse::<Self>() {
             *self = val;
         }
@@ -300,9 +370,14 @@ impl EguiPrompting for u32 {
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for i32 {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
         let mut s = self.to_string();
-        s.build_gui(ui, name)?;
+        s.build_gui(ui, name, comment)?;
         if let Ok(val) = s.parse::<Self>() {
             *self = val;
         }
@@ -312,9 +387,14 @@ impl EguiPrompting for i32 {
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for u64 {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
         let mut s = self.to_string();
-        s.build_gui(ui, name)?;
+        s.build_gui(ui, name, comment)?;
         if let Ok(val) = s.parse::<Self>() {
             *self = val;
         }
@@ -324,9 +404,14 @@ impl EguiPrompting for u64 {
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for i64 {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
         let mut s = self.to_string();
-        s.build_gui(ui, name)?;
+        s.build_gui(ui, name, comment)?;
         if let Ok(val) = s.parse::<Self>() {
             *self = val;
         }
@@ -336,9 +421,14 @@ impl EguiPrompting for i64 {
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for usize {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
         let mut s = self.to_string();
-        s.build_gui(ui, name)?;
+        s.build_gui(ui, name, comment)?;
         if let Ok(val) = s.parse::<Self>() {
             *self = val;
         }
@@ -348,9 +438,14 @@ impl EguiPrompting for usize {
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for isize {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
         let mut s = self.to_string();
-        s.build_gui(ui, name)?;
+        s.build_gui(ui, name, comment)?;
         if let Ok(val) = s.parse::<Self>() {
             *self = val;
         }
@@ -360,9 +455,14 @@ impl EguiPrompting for isize {
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for f32 {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
         let mut s = self.to_string();
-        s.build_gui(ui, name)?;
+        s.build_gui(ui, name, comment)?;
         if let Ok(val) = s.parse::<Self>() {
             *self = val;
         }
@@ -372,9 +472,14 @@ impl EguiPrompting for f32 {
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for f64 {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
         let mut s = self.to_string();
-        s.build_gui(ui, name)?;
+        s.build_gui(ui, name, comment)?;
         if let Ok(val) = s.parse::<Self>() {
             *self = val;
         }
@@ -384,7 +489,15 @@ impl EguiPrompting for f64 {
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for bool {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
+        if let Some(comment) = comment {
+            ui.label(comment);
+        }
         let cname = if let Some(n) = name {
             n.to_string()
         } else {
@@ -397,12 +510,15 @@ impl EguiPrompting for bool {
 
 #[cfg(feature = "egui")]
 impl EguiPrompting for std::path::PathBuf {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
         let mut s = self.display().to_string();
-        s.build_gui(ui, name)?;
-        if let Ok(val) = s.parse::<Self>() {
-            *self = val;
-        }
+        s.build_gui(ui, name, comment)?;
+        *self = s.parse::<Self>().unwrap();
         Ok(())
     }
 }
@@ -450,7 +566,15 @@ impl<T> EguiPrompting for SelectedHashMap<T>
 where
     T: EguiPrompting + std::default::Default,
 {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
+        if let Some(comment) = comment {
+            ui.label(comment);
+        }
         if let Some(n) = name {
             ui.label(n);
         }
@@ -473,7 +597,7 @@ where
                     "item".to_string()
                 };
                 let cname = format!("Entry {} for {}", s, tname);
-                e.build_gui(ui, Some(&cname))?;
+                e.build_gui(ui, Some(&cname), None)?;
             }
             if ui.button("Delete this entry").clicked() {
                 self.map.remove(s);
@@ -498,7 +622,15 @@ impl<T> EguiPrompting for Vec<T>
 where
     T: EguiPrompting + std::default::Default,
 {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
+        if let Some(comment) = comment {
+            ui.label(comment);
+        }
         if let Some(n) = name {
             ui.label(n);
         }
@@ -508,7 +640,7 @@ where
             } else {
                 format!("{}", i + 1)
             };
-            e.build_gui(ui, Some(&name2))?;
+            e.build_gui(ui, Some(&name2), None)?;
         }
         if ui.button("Add another").clicked() {
             self.push(T::default());
@@ -522,8 +654,16 @@ impl<T> EguiPrompting for Option<T>
 where
     T: EguiPrompting + Default,
 {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
         let mut checked = self.is_some();
+        if let Some(comment) = comment {
+            ui.label(comment);
+        }
         if ui.checkbox(&mut checked, name.unwrap_or("Item")).changed() {
             if checked {
                 *self = Some(T::default());
@@ -532,7 +672,7 @@ where
             }
         }
         if let Some(thing) = self {
-            thing.build_gui(ui, name)?;
+            thing.build_gui(ui, name, comment)?;
         }
         Ok(())
     }
@@ -543,8 +683,13 @@ impl<T> EguiPrompting for Box<T>
 where
     T: EguiPrompting,
 {
-    fn build_gui(&mut self, ui: &mut egui::Ui, name: Option<&str>) -> Result<(), String> {
-        self.as_mut().build_gui(ui, name)
+    fn build_gui(
+        &mut self,
+        ui: &mut egui::Ui,
+        name: Option<&str>,
+        comment: Option<&str>,
+    ) -> Result<(), String> {
+        self.as_mut().build_gui(ui, name, comment)
     }
 }
 

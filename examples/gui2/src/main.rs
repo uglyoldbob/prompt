@@ -119,7 +119,7 @@ impl TrackedWindow for PopupWindow {
             self.test.val_pb2.filter = Some(("Test file".to_string(), vec!["*.txt".to_string()]));
             egui_multiwin::egui::ScrollArea::vertical()
                 .auto_shrink([false; 2])
-                .show(ui, |ui| match self.test.build_gui(ui, Some("test")) {
+                .show(ui, |ui| match self.test.build_gui(ui, Some("test"), None) {
                     Ok(_) => {
                         if ui.button("Submit").clicked() {
                             println!("Clicked submit");
