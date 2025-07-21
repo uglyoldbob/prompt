@@ -79,13 +79,21 @@ impl EguiPrompting for FileOpen {
         if let Some(n) = name {
             ui.label(n);
         }
-        ui.label(self.pb.display().to_string());
+        let mut show_file_dialog = false;
+        let sel = format!("Selected file: {}", self.pb.display());
+        let l = egui::Label::new(sel).sense(egui::Sense::click());
+        if ui.add(l).clicked() {
+            show_file_dialog = true;
+        }
         let n = if let Some(n) = name {
             format!(" {}", n)
         } else {
             format!("")
         };
         if ui.button(format!("Update{}", n)).clicked() {
+            show_file_dialog = true;
+        }
+        if show_file_dialog {
             let mut dialog = rfd::FileDialog::new();
             if let Some((a, b)) = &self.filter {
                 dialog = dialog.add_filter(a, b);
@@ -150,13 +158,21 @@ impl EguiPrompting for FileCreate {
         if let Some(n) = name {
             ui.label(n);
         }
-        ui.label(self.pb.display().to_string());
+        let mut show_file_dialog = false;
+        let sel = format!("Selected file: {}", self.pb.display());
+        let l = egui::Label::new(sel).sense(egui::Sense::click());
+        if ui.add(l).clicked() {
+            show_file_dialog = true;
+        }
         let n = if let Some(n) = name {
             format!(" {}", n)
         } else {
             format!("")
         };
         if ui.button(format!("Update{}", n)).clicked() {
+            show_file_dialog = true;
+        }
+        if show_file_dialog {
             let mut dialog = rfd::FileDialog::new();
             if let Some((a, b)) = &self.filter {
                 dialog = dialog.add_filter(a, b);
@@ -678,18 +694,25 @@ where
                 }
             });
         if let Some(s) = &self.selection {
-            if let Some(e) = self.map.get_mut(s) {
+            let cname = if let Some(e) = self.map.get_mut(s) {
                 let tname = if let Some(n) = name {
                     n.to_string()
                 } else {
                     "item".to_string()
                 };
-                let cname = format!("Entry {} for {}", s, tname);
-                let _ = e.build_gui(ui, Some(&cname), None);
-            }
+                ui.label(format!("Entry {}", s));
+                let cname = format!("{}.[{}]", tname, s);
+                Some((e, cname))
+            } else {
+                None
+            };
             if ui.button("Delete this entry").clicked() {
                 self.map.remove(s);
                 self.selection = None;
+            } else {
+                if let Some((e, cname)) = cname {
+                    let _ = e.build_gui(ui, Some(&cname), None);
+                }
             }
         }
         self.check(name)
