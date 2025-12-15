@@ -1,6 +1,6 @@
 [package]
 name = "userprompt"
-version = "0.3.5"
+version = "0.3.6"
 description="A crate that helps gather input from a user"
 license = "GPL-3.0"
 edition = "2018"

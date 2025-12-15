@@ -22,6 +22,18 @@ pub struct FileOpen {
     pub title: Option<String>,
 }
 
+impl From<std::path::PathBuf> for FileOpen {
+    fn from(value: std::path::PathBuf) -> Self {
+        Self {
+            pb: value,
+            filter: None,
+            initial_dir: None,
+            initial_file: None,
+            title: None,
+        }
+    }
+}
+
 impl std::ops::Deref for FileOpen {
     type Target = std::path::PathBuf;
     fn deref(&self) -> &Self::Target {
@@ -50,6 +62,17 @@ pub struct FileCreate {
     /// The file dialog title
     #[cfg_attr(feature = "serde", serde(skip))]
     pub title: Option<String>,
+}
+
+impl From<std::path::PathBuf> for FileCreate {
+    fn from(value: std::path::PathBuf) -> Self {
+        Self {
+            pb: value,
+            filter: None,
+            initial_dir: None,
+            title: None,
+        }
+    }
 }
 
 impl std::ops::Deref for FileCreate {
